@@ -673,35 +673,6 @@
     }
   },
   {
-    "id": "ros2-gazebo-mobile-robot",
-    "slug": "ros2-gazebo-mobile-robot",
-    "title": {
-      "en": "ROS 2 Mobile Robot Simulation",
-      "ja": "ROS 2 移動ロボットシミュレーション"
-    },
-    "summary": {
-      "en": "A four-wheel robot model with ROS 2 Humble launch files for Gazebo, bridge integration and RViz visualization.",
-      "ja": "4輪移動ロボットのモデルと、Gazebo、ブリッジ、RViz可視化のためのROS 2 Humble起動設定。"
-    },
-    "category": "simulation",
-    "categories": [
-      "mobile"
-    ],
-    "technologies": [
-      "ROS 2",
-      "Gazebo",
-      "RViz",
-      "URDF",
-      "Xacro"
-    ],
-    "status": "simulation",
-    "startDate": "2025",
-    "githubUrl": "https://github.com/ishafayetul/ros2-humble-ign-gazebo",
-    "relatedProjects": [
-      "industrial-agv"
-    ]
-  },
-  {
     "id": "ros2-manipulator",
     "slug": "ros2-manipulator",
     "title": {
@@ -727,8 +698,7 @@
     "startDate": "2024",
     "githubUrl": "https://github.com/ishafayetul/manipulator01-ros-humble",
     "relatedProjects": [
-      "robotic-arm-simulation",
-      "ros2-gazebo-mobile-robot"
+      "robotic-arm-simulation"
     ]
   }
 ]
