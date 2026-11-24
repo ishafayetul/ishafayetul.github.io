@@ -105,7 +105,14 @@
       "en": "Project Lead",
       "ja": "プロジェクトリーダー"
     },
-    "project": "aeromed"
+    "project": "aeromed",
+    "image": {
+      "src": "/images/projects/achievements-chatgpt-image-nov-24-2026-10-04-38-pm-f6ee8411.webp",
+      "alt": {
+        "en": "AeroMed",
+        "ja": "AeroMed"
+      }
+    }
   },
   {
     "id": "grant-xobotics",
