@@ -20,7 +20,14 @@
       "ja": "チームリーダー"
     },
     "project": "phoenix-2",
-    "url": "https://mongol-barota.mist.ac.bd/achievements"
+    "url": "https://mongol-barota.mist.ac.bd/achievements",
+    "image": {
+      "src": "/images/projects/achievements-unnamed-2-83df84d7.webp",
+      "alt": {
+        "en": "ARC ",
+        "ja": "ARC"
+      }
+    }
   },
   {
     "id": "urc-2021",
