@@ -1,7 +1,7 @@
 import { execFile } from "node:child_process";
-import { createHash } from "node:crypto";
-import { lstat, readFile, realpath } from "node:fs/promises";
-import { join, sep } from "node:path";
+import { createHash, randomUUID } from "node:crypto";
+import { lstat, readFile, realpath, rename, unlink, writeFile } from "node:fs/promises";
+import { dirname, join, sep } from "node:path";
 import { promisify } from "node:util";
 
 const exec = promisify(execFile);
@@ -9,6 +9,8 @@ export const repository = "ishafayetul/ishafayetul.github.io";
 const remote = `https://github.com/${repository}.git`;
 const scopes = ["content/data", "content/en", "content/ja", "messages", "public/images", "public/documents"];
 const editable = /^(?:content\/data\/[a-z-]+\.json|content\/(?:en|ja)\/(?:projects|blog)\/[a-z0-9-]+\.md|messages\/(?:en|ja)\.json|public\/(?:images|documents)\/(?:[a-z0-9-]+\/)*[a-z0-9-]+\.(?:webp|png|jpe?g|gif|avif|svg|pdf|mp4|webm))$/;
+const recordLists = new Set(["projects", "articles", "experience", "education", "skills", "publications",
+  "achievements", "teaching", "certifications", "outreach", "activities"]);
 const sha = /^[a-f0-9]{40}$/;
 const split = value => value.split("\0").filter(Boolean);
 const credential = ["-c", "credential.https://github.com.helper=", "-c", "credential.https://github.com.helper=!gh auth git-credential"];
@@ -115,6 +117,131 @@ export function portfolioGit(cwd, scanner = process.env.PORTFOLIO_GITLEAKS || "g
     }
   }
 
+  function registry(section) {
+    if (!recordLists.has(section)) throw new Error("Choose a section with deletable records.");
+    return `content/data/${section}.json`;
+  }
+
+  async function recordTemplate(section) {
+    const path = registry(section);
+    const commits = (await git(["log", "--format=%H", "--", path])).trim().split("\n").filter(Boolean);
+    for (const commit of commits) {
+      const text = await git(["show", `${commit}:${path}`]).catch(() => "");
+      if (!text) continue;
+      const sample = JSON.parse(text)[0];
+      if (sample && typeof sample === "object") return { sample };
+    }
+    return { sample: {} };
+  }
+
+  async function deleteRecord({ section, index, revision, bodies }) {
+    const path = registry(section);
+    if (!Number.isInteger(index) || index < 0 || typeof revision !== "string" || !/^[a-f0-9]{64}$/.test(revision)) {
+      throw new Error("Choose a saved record to delete.");
+    }
+    await cleanIndex();
+    const [hash] = await checkFiles([path]);
+    if (hash !== revision) throw new Error("This section changed on disk. Reopen the section before deleting a record.");
+    const changes = new Map();
+
+    async function currentFile(relative) {
+      const [fingerprint] = await checkFiles([relative]);
+      if (fingerprint === null) return null;
+      const content = await readFile(join(cwd, relative));
+      if (createHash("sha256").update(content).digest("hex") !== fingerprint) {
+        throw new Error(`${relative} changed on disk. Reopen the section before deleting a record.`);
+      }
+      return content.toString("utf8");
+    }
+
+    function updateList(relative, before, items) {
+      const after = JSON.stringify(items, null, 2) + "\n";
+      if (before !== after) changes.set(relative, { before, after });
+    }
+
+    async function replaceFile(relative, contents) {
+      const file = join(cwd, relative);
+      if (!(await realpath(dirname(file))).startsWith(rootPath + sep)) throw new Error("The content directory moved outside the checkout.");
+      if (contents === null) return unlink(file);
+      const pending = `${file}.${randomUUID()}.tmp`;
+      await writeFile(pending, contents, { flag: "wx" });
+      try {
+        await rename(pending, file);
+      } catch (error) {
+        await unlink(pending).catch(() => {});
+        throw error;
+      }
+    }
+
+    const before = await currentFile(path);
+    if (before === null || createHash("sha256").update(before).digest("hex") !== revision) {
+      throw new Error("This section changed on disk. Reopen the section before deleting a record.");
+    }
+    const items = JSON.parse(before);
+    if (!Array.isArray(items) || !items[index]) throw new Error("That record is no longer available.");
+    const [record] = items.splice(index, 1);
+    if (section === "projects" || section === "articles") {
+      const slug = record.slug;
+      if (typeof slug !== "string" || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) throw new Error("The record has an invalid slug.");
+      for (const locale of ["en", "ja"]) {
+        const markdown = `content/${locale}/${section === "projects" ? "projects" : "blog"}/${slug}.md`;
+        const content = await currentFile(markdown);
+        const fingerprint = content === null ? null : createHash("sha256").update(content).digest("hex");
+        if (fingerprint !== bodies?.[locale]) throw new Error("The record's Markdown changed on disk. Reopen the record before deleting it.");
+        if (content !== null) changes.set(markdown, { before: content, after: null });
+      }
+      if (section === "projects") {
+        for (const project of items) {
+          if (project.relatedProjects?.includes(slug)) {
+            project.relatedProjects = project.relatedProjects.filter(value => value !== slug);
+          }
+        }
+        for (const category of ["experience", "publications", "articles", "achievements"]) {
+          const linkedPath = registry(category);
+          const original = await currentFile(linkedPath);
+          const linked = JSON.parse(original);
+          let changedLinks = false;
+          for (const item of linked) {
+            if (item.project === slug) {
+              delete item.project;
+              changedLinks = true;
+            }
+            if (item.projects?.includes(slug)) {
+              item.projects = item.projects.filter(value => value !== slug);
+              changedLinks = true;
+            }
+          }
+          if (changedLinks) updateList(linkedPath, original, linked);
+        }
+      }
+    }
+    updateList(path, before, items);
+
+    const paths = [...changes.keys()];
+    await checkpoint(paths, "Checkpoint before deleting portfolio record");
+    const applied = [];
+    try {
+      for (const [relative, { before: original, after }] of changes) {
+        if (await currentFile(relative) !== original) throw new Error(`${relative} changed during deletion. Reopen the section and try again.`);
+        await replaceFile(relative, after);
+        applied.push(relative);
+      }
+      const version = await checkpoint(paths, `Delete record from ${section}`);
+      if (!version) throw new Error("Could not record the deletion in Git.");
+      return { index: Math.min(index, items.length - 1) };
+    } catch (error) {
+      const rollback = await Promise.allSettled(applied.map(async relative => {
+        const change = changes.get(relative);
+        if (await currentFile(relative) !== change.after) throw new Error("The file was edited during deletion.");
+        await replaceFile(relative, change.before);
+      }));
+      if (rollback.some(result => result.status === "rejected")) {
+        throw new Error("Deletion was interrupted and some files changed during recovery. Your previous version is available in Versions.");
+      }
+      throw error;
+    }
+  }
+
   async function restore(id) {
     if (typeof id !== "string" || !sha.test(id)) throw new Error("Invalid portfolio version.");
     const saved = await state();
@@ -188,5 +315,5 @@ export function portfolioGit(cwd, scanner = process.env.PORTFOLIO_GITLEAKS || "g
     await check("build", { SITE_URL: "", PORTFOLIO_PREVIEW: "1" });
   }
 
-  return { state, checkpoint, restore, push, preview };
+  return { state, checkpoint, recordTemplate, deleteRecord, restore, push, preview };
 }

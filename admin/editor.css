@@ -65,3 +65,6 @@ dialog li button { margin-left:.6rem; }
 .reorder li:hover { border-color:var(--accent); }
 .reorder .grip { flex:1 1 180px; cursor:grab; overflow-wrap:anywhere; }
 .reorder button { min-height:36px; font-size:.82rem; }
+
+button.danger { color:var(--error); border-color:#87525b; }
+button.danger:hover { border-color:var(--error); background:#321f29; }

@@ -92,6 +92,8 @@ async function action(request, response, path) {
     switch (path) {
       case "/api/state": data = await git.state(); break;
       case "/api/save": data = { version: await git.checkpoint(input.paths) }; break;
+      case "/api/delete-record": data = await git.deleteRecord(input); break;
+      case "/api/record-template": data = await git.recordTemplate(input.section); break;
       case "/api/restore": data = { version: await git.restore(input.id) }; break;
       case "/api/preview": data = { url: await previewUrl() }; break;
       case "/api/push": data = await git.push(input.proof); break;

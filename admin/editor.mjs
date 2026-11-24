@@ -157,7 +157,7 @@ async function loadSection(section, index = 0) {
     }
     current.library.sort();
   }
-  await selectRecord(Array.isArray(data) && data.length ? Math.min(index, data.length - 1) : -1);
+  await selectRecord(Array.isArray(data) && data.length ? Math.max(0, Math.min(index, data.length - 1)) : -1);
   dirty = false;
   render();
 }
@@ -456,8 +456,7 @@ function newRecord() {
     const record = special() ? {
       slug: "", title: bilingual(), summary: bilingual(),
       ...(section === "projects" ? { category: "research", technologies: [], draft: true } : { tags: [] })
-    } : reset(current.data[0]);
-    if (record === "") throw new Error("Use the first existing record as a template or add the initial record in the repository.");
+    } : reset(current.data[0] ?? (await api("record-template", { section })).sample);
     current.data.push(record);
     current.index = current.data.length - 1;
     current.isNew = true;
@@ -465,6 +464,39 @@ function newRecord() {
     edited();
     render();
   });
+}
+
+async function fingerprint(value) {
+  if (value === null) return null;
+  const bytes = new TextEncoder().encode(value);
+  const hash = await crypto.subtle.digest("SHA-256", bytes);
+  return Array.from(new Uint8Array(hash), byte => byte.toString(16).padStart(2, "0")).join("");
+}
+
+function confirmDelete(label) {
+  if (dirty || pendingVersions.size) {
+    status("Save your pending changes before deleting a record.", true);
+    return;
+  }
+  const { section, index, before, bodies } = current;
+  const details = section === "projects"
+    ? "Its English and Japanese pages and links from other records will also be removed. Image files will stay in the library."
+    : section === "articles" ? "Its English and Japanese pages will also be removed." : "";
+  const remove = button("Delete and save version", () => {
+    dialog.close();
+    run(async () => {
+      const revisions = Object.fromEntries(await Promise.all(
+        Object.entries(bodies).map(async ([locale, body]) => [locale, await fingerprint(body.before)])
+      ));
+      const result = await api("delete-record", { section, index, revision: await fingerprint(before), bodies: revisions });
+      await loadSection(section, result.index);
+      status("Record deleted locally. You can undo it in Versions.");
+    });
+  });
+  remove.classList.add("danger");
+  showReview("Delete record", el("p", { text: `Delete “${label}” from ${sections.get(section)}?` }),
+    ...(details ? [el("p", { text: details })] : []),
+    el("p", { text: "The deletion is saved as a local Git version and can be undone in Versions." }), remove);
 }
 
 function render() {
@@ -514,8 +546,14 @@ function render() {
         });
         else workspace.querySelector("select").value = String(index);
       });
-    workspace.append(el("div", { className: "toolbar" }, recordSelect,
-      button(section === "projects" ? "Add project" : section === "articles" ? "Add article" : "Add record", newRecord)));
+    const toolbar = el("div", { className: "toolbar" }, recordSelect,
+      button(section === "projects" ? "Add project" : section === "articles" ? "Add article" : "Add record", newRecord));
+    if (entry && !current.isNew) {
+      const remove = button("Delete record…", () => confirmDelete(name(entry, current.index)));
+      remove.classList.add("danger");
+      toolbar.append(remove);
+    }
+    workspace.append(toolbar);
     if (data.length > 1) {
       workspace.append(el("details", { className: "panel" }, el("summary", { text: "Reorder records" }), ordering(data, name, () => {
         current.index = data.indexOf(entry);

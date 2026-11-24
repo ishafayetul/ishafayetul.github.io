@@ -86,7 +86,9 @@ def main():
         "phoenix-rover": "Electrical team lead for MIST Mongol Barota’s Phoenix rover and co-author of the IEEE Access paper.",
     }
     for project_id, description in highlights.items():
-        project = projects[project_id]
+        project = projects.get(project_id)
+        if project is None:
+            continue
         story.append(paragraph(f"<b>{escape(english(project, 'title'))}.</b> {escape(description)}"))
     story.append(header("Education"))
     for education in load("education"):

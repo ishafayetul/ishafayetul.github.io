@@ -22,6 +22,7 @@ Use **Projects** and **Technical notes** for bilingual metadata and Markdown. **
 
 - **Save changes** writes files to your checkout and records a local Git version. The editor uses Gitleaks from your PATH or `PORTFOLIO_GITLEAKS`. The original workspace has a verified local scanner copy in the ignored `.portfolio-tools` directory.
 - **Preview** saves pending edits and builds a local copy on a separate localhost address. Use it to review the changes before publishing.
+- **Delete record** removes a selected item from an editable record list. Project and article deletions also remove their local Markdown pages. Project deletion clears related links and keeps images in the library.
 - **Versions** lists saved Git content snapshots, including pushed versions. Restoring creates a new local commit and preserves prior edits in history. Push the restoration if it should go live.
 - **Push & deploy** shows the pending versions and destination for confirmation, validates the content, scans the outgoing changes, pushes to `main`, and starts the GitHub Pages workflow. It uses your existing GitHub CLI login. The button targets `ishafayetul/ishafayetul.github.io`.
 
