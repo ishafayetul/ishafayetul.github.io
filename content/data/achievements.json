@@ -50,7 +50,14 @@
       "ja": "電装チームリーダー"
     },
     "project": "phoenix-rover",
-    "url": "https://urc.marssociety.org/home/about-urc/archives/urc2021/virtual-university-rover-challenge-2021-gets-teams-roving"
+    "url": "https://urc.marssociety.org/home/about-urc/archives/urc2021/virtual-university-rover-challenge-2021-gets-teams-roving",
+    "image": {
+      "src": "/images/projects/achievements-unnamed-82b83ff8.webp",
+      "alt": {
+        "en": "URC",
+        "ja": "URC"
+      }
+    }
   },
   {
     "id": "medical-2020",
