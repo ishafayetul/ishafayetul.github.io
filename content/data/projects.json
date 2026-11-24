@@ -28,8 +28,7 @@
       "ja": "バングラデシュ政府 ICT Innovation Fund（助成元）"
     },
     "relatedProjects": [
-      "uav-safe-landing",
-      "surveillance-rescue-robot"
+      "uav-safe-landing"
     ],
     "thumbnail": {
       "src": "/images/projects/aeromed-chatgpt-image-nov-24-2026-10-04-38-pm-37b2a9e5.webp",
@@ -75,8 +74,7 @@
     },
     "githubUrl": "https://github.com/ishafayetul/Autonomous-Guided-Vehicle-Using-ROS1",
     "relatedProjects": [
-      "ihabot",
-      "surveillance-rescue-robot"
+      "ihabot"
     ],
     "thumbnail": {
       "src": "/images/projects/industrial-agv.webp",
@@ -321,35 +319,6 @@
       "position": "center 59%",
       "preview": "/images/projects/phoenix-rover-preview.webp"
     }
-  },
-  {
-    "id": "surveillance-rescue-robot",
-    "slug": "surveillance-rescue-robot",
-    "title": {
-      "en": "Autonomous Surveillance and Rescue Robot",
-      "ja": "自律型監視・救助ロボット"
-    },
-    "summary": {
-      "en": "ROS 2 navigation, mapping and perception work for a ground robot aimed at disaster response.",
-      "ja": "災害対応を想定した地上ロボット向けのROS 2ナビゲーション、地図作成、環境認識。"
-    },
-    "category": "mobile",
-    "technologies": [
-      "ROS 2",
-      "LiDAR",
-      "IMU",
-      "Mapping",
-      "Obstacle avoidance"
-    ],
-    "featured": true,
-    "organization": {
-      "en": "DIP Foundation / DIP Tech Lab",
-      "ja": "DIP Foundation / DIP Tech Lab"
-    },
-    "relatedProjects": [
-      "industrial-agv",
-      "ihabot"
-    ]
   },
   {
     "id": "uvc-purge-v2",
@@ -729,8 +698,7 @@
     "startDate": "2025",
     "githubUrl": "https://github.com/ishafayetul/ros2-humble-ign-gazebo",
     "relatedProjects": [
-      "industrial-agv",
-      "surveillance-rescue-robot"
+      "industrial-agv"
     ]
   },
   {
