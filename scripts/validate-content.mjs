@@ -72,6 +72,19 @@ function messageParity(left, right) {
   }
 }
 
+const orderPath = new URL("../content/data/section-order.json", import.meta.url);
+if (existsSync(orderPath)) {
+  const defaults = read("../src/lib/section-layout.json");
+  const order = content("section-order");
+  assert(order && typeof order === "object" && !Array.isArray(order), "Page layout must be an object");
+  for (const [group, ids] of Object.entries(order)) {
+    const layout = Object.hasOwn(defaults, group) && defaults[group];
+    assert(layout, `Unknown layout group: ${group}`);
+    list(ids, `Layout ${group}`);
+    assert(ids.every(id => Object.hasOwn(layout.sections, id)), `Unknown section in layout ${group}`);
+  }
+}
+
 messageParity(en, ja);
 translated(profile.location, "profile.location");
 assert(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profile.email), "Invalid public email address");
@@ -146,13 +159,12 @@ for (const item of publications) {
   references(item.projects, item.id);
 }
 
-for (const [index, role] of experience.entries()) {
+for (const role of experience) {
   translated(role.title, `${role.id} title`);
   translated(role.organization, `${role.id} organization`);
   for (const key of ["description", "type"]) if (role[key]) translated(role[key], `${role.id} ${key}`);
   assert(/^\d{4}-\d{2}$/.test(role.start) && datePattern.test(role.start), `Invalid employment start: ${role.id}`);
   if (role.end) assert(/^\d{4}-\d{2}$/.test(role.end) && datePattern.test(role.end) && role.end >= role.start, `Invalid employment end: ${role.id}`);
-  if (index > 0) assert(experience[index - 1].start >= role.start, "Experience must be reverse chronological");
   references(role.projects, role.id);
   list(role.technologies, `${role.id} technologies`);
 }

@@ -1,0 +1,23 @@
+{
+  "home":{"label":"Home","sections":{"hero":"Introduction","highlights":"Highlights","featured":"Selected engineering work","skills":"Technical expertise","experience":"Experience","evidence":"Publications and competition highlights","contact":"Contact callout"}},
+  "homeEvidence":{"label":"Home highlights columns","sections":{"papers":"Selected publications","competition":"Competition results"}},
+  "projects":{"label":"Projects","sections":{"intro":"Page introduction","catalog":"Project catalog"}},
+  "projectGroups":{"label":"Project catalog groups","sections":{"featured":"Featured projects","other":"Other projects","archive":"Archive"}},
+  "experience":{"label":"Experience","sections":{"intro":"Page introduction","timeline":"Experience timeline"}},
+  "about":{"label":"About","sections":{"intro":"Page introduction","profile":"Profile","credentials":"Education and languages","skills":"Technical expertise","activities":"Activities"}},
+  "credentials":{"label":"About education and language columns","sections":{"education":"Education","languages":"Language qualifications"}},
+  "research":{"label":"Research","sections":{"intro":"Page introduction","overview":"Research overview","papers":"Publications"}},
+  "researchOverview":{"label":"Research overview columns","sections":{"interests":"Interests","ongoing":"Ongoing research","thesis":"Undergraduate thesis"}},
+  "achievements":{"label":"Achievements","sections":{"intro":"Page introduction","recognition":"Awards and grants"}},
+  "recognition":{"label":"Achievement groups","sections":{"team":"Competition awards","grant":"Grants"}},
+  "teaching":{"label":"Teaching","sections":{"intro":"Page introduction","courses":"Courses","workshops":"Workshops","leadership":"Leadership"}},
+  "blog":{"label":"Technical notes","sections":{"intro":"Page introduction","posts":"Articles"}},
+  "contact":{"label":"Contact","sections":{"intro":"Page introduction","details":"Contact details"}},
+  "contactDetails":{"label":"Contact details columns","sections":{"email":"Email","links":"External links"}},
+  "resume":{"label":"Résumé","sections":{"intro":"Page introduction and download","document":"Document preview"}},
+  "projectDetail":{"label":"Project case study template","sections":{"intro":"Page introduction","caseStudy":"Case study","related":"Related projects"}},
+  "caseStudy":{"label":"Case study content","sections":{"markdown":"Written case study","architecture":"Architecture","media":"Media","results":"Results"}},
+  "caseSidebar":{"label":"Case study sidebar","sections":{"facts":"Project details","stack":"Technologies","hardware":"Hardware","software":"Software","resources":"Resources"}},
+  "articleDetail":{"label":"Article template","sections":{"intro":"Page introduction","details":"Article details"}},
+  "articleBody":{"label":"Article detail content","sections":{"markdown":"Written article","related":"Related project"}}
+}

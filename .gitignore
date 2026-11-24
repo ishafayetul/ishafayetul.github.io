@@ -9,3 +9,8 @@ next-env.d.ts
 !.env.example
 .DS_Store
 assets/originals/
+
+# Local admin folder identity and scanned-only local tools
+.portfolio-admin-session*
+.portfolio-tools/
+.portfolio-admin-preview/

@@ -1,8 +1,10 @@
 import { assetName, localImage, openWorkspace, optimizeImage, readText, saveChanges, slugPattern } from "./storage.mjs";
 
+import { markdownSections, moveItem } from "./reorder.mjs";
+
 const jsonFile = name => `content/data/${name}.json`;
 const sections = new Map([
-  ["projects", "Projects"], ["articles", "Technical notes"], ["profile", "Profile"],
+  ["layout", "Page layout"], ["projects", "Projects"], ["articles", "Technical notes"], ["profile", "Profile"],
   ["experience", "Experience"], ["education", "Education"], ["skills", "Skills"],
   ["publications", "Publications"], ["achievements", "Achievements"], ["teaching", "Teaching"],
   ["certifications", "Language qualifications"], ["outreach", "Outreach"], ["activities", "Activities"],
@@ -15,8 +17,16 @@ const workspace = document.querySelector("#workspace");
 const notice = document.querySelector("#status");
 const saveButton = document.querySelector("#save");
 const connect = document.querySelector("#connect");
+const previewButton = document.querySelector("#preview");
+const pushButton = document.querySelector("#push");
+const versionsButton = document.querySelector("#versions");
+const dialog = document.querySelector("#review");
+const pendingVersions = new Set();
 
 let root;
+let token;
+let layoutDefaults;
+let layoutGroup = "home";
 let current;
 let dirty = false;
 let busy = false;
@@ -25,7 +35,7 @@ const bilingual = () => ({ en: "", ja: "" });
 const emptyBodies = () => ({ en: { before: null, value: "" }, ja: { before: null, value: "" } });
 const kind = () => current.section === "projects" ? "projects" : "blog";
 const special = () => ["projects", "articles"].includes(current.section);
-const sectionFile = section => section.startsWith("interface-") ? `messages/${section.slice(-2)}.json` : jsonFile(section);
+const sectionFile = section => section.startsWith("interface-") ? `messages/${section.slice(-2)}.json` : jsonFile(section === "layout" ? "section-order" : section);
 const display = record => record?.title?.en || record?.title || record?.label?.en || record?.name || record?.id || record?.slug;
 const textValue = value => typeof value === "string" ? value : "";
 const json = value => JSON.stringify(value, null, 2) + "\n";
@@ -53,7 +63,11 @@ function status(message = "", failed = false) {
 
 function sync() {
   saveButton.hidden = !root;
-  saveButton.disabled = !dirty || busy;
+  saveButton.disabled = (!dirty && !pendingVersions.size) || busy;
+  for (const button of [previewButton, pushButton, versionsButton]) {
+    button.hidden = !root;
+    button.disabled = busy;
+  }
   connect.disabled = busy;
   workspace.inert = busy;
   document.querySelector("#sidebar").inert = busy;
@@ -126,8 +140,8 @@ async function selectRecord(index) {
 async function loadSection(section, index = 0) {
   const path = section === "media" ? null : sectionFile(section);
   const before = path && await readText(root, path);
-  if (path && before === null) throw new Error(`Missing ${path}.`);
-  const data = before ? JSON.parse(before) : null;
+  if (path && before === null && section !== "layout") throw new Error(`Missing ${path}.`);
+  const data = before ? JSON.parse(before) : section === "layout" ? {} : null;
   current = { section, path, before, data, uploads: new Map(), library: [] };
   if (section === "media") {
     for (const folder of ["profile", "projects", "achievements", "teaching"]) {
@@ -238,6 +252,58 @@ async function prepareUploads(files, slug) {
   return Promise.all(files.map(async file => [assetName(file.name, slug), await optimizeImage(file)]));
 }
 
+function ordering(items, label, onMove) {
+  const list = el("ol", { className: "reorder" });
+  let source = -1;
+  function refresh() {
+    list.replaceChildren(...items.map((item, index) => {
+      const name = label(item, index);
+      const grip = el("span", { className: "grip", text: `↕  ${name}` });
+      grip.draggable = true;
+      grip.addEventListener("dragstart", event => {
+        source = index;
+        event.dataTransfer.setData("text/plain", name);
+        event.dataTransfer.effectAllowed = "move";
+      });
+      grip.addEventListener("dragend", () => { source = -1; });
+      const up = button("Up", () => move(index, index - 1, 0));
+      const down = button("Down", () => move(index, index + 1, 1));
+      up.setAttribute("aria-label", `Move ${name} up`);
+      down.setAttribute("aria-label", `Move ${name} down`);
+      up.disabled = index === 0;
+      down.disabled = index === items.length - 1;
+      const row = el("li", {}, grip, up, down);
+      row.addEventListener("dragover", event => { if (source !== -1) event.preventDefault(); });
+      row.addEventListener("drop", event => {
+        if (source === -1) return;
+        event.preventDefault();
+        move(source, index);
+        source = -1;
+      });
+      return row;
+    }));
+  }
+  function move(from, to, focus) {
+    if (!moveItem(items, from, to)) return;
+    refresh();
+    onMove();
+    if (focus !== undefined) {
+      const buttons = list.children[to]?.querySelectorAll("button");
+      (buttons?.[focus]?.disabled ? buttons?.[1 - focus] : buttons?.[focus])?.focus();
+    }
+  }
+  refresh();
+  return list;
+}
+
+function imageOrder(items, rendered) {
+  if (items.length < 2) return null;
+  return ordering(items, item => item.alt?.en || item.src.split("/").at(-1), () => {
+    for (const item of items) rendered.append(rendered.querySelector(`[data-path="${CSS.escape(item.src)}"]`));
+    edited();
+  });
+}
+
 function images(record) {
   const groups = { thumbnail: "Thumbnail", gallery: "Gallery", architecture: "Architecture images" };
   const blocks = [];
@@ -249,6 +315,12 @@ function images(record) {
       edited();
       render();
     }
+    const cards = el("div", { className: "images" }, ...items.map(asset => {
+      const card = assetCard(asset.src, asset, () => remove(items.indexOf(asset)));
+      card.dataset.path = asset.src;
+      return card;
+    }));
+    const order = key === "thumbnail" ? null : imageOrder(items, cards);
     blocks.push(fieldset(label,
       uploadField(async files => {
         const uploads = await prepareUploads(files, record.slug);
@@ -261,19 +333,35 @@ function images(record) {
         edited();
         render();
       }, key !== "thumbnail"),
-      el("div", { className: "images" }, ...items.map((asset, index) => assetCard(asset.src, asset, () => remove(index))))
+      ...(order ? [order] : []), cards
     ));
   }
   return fieldset("Project media", el("p", { className: "hint", text: "Imported images are resized and saved as WebP. Add meaningful alt text in both languages." }), ...blocks);
 }
 
 function markdownFields() {
-  return fieldset("Page content", el("div", { className: "grid" }, ...Object.entries(languages).map(([locale, title]) =>
-    input(`${title} Markdown`, current.bodies[locale].value, value => {
-      current.bodies[locale].value = value;
+  const fields = Object.entries(languages).map(([locale, title]) => {
+    const body = current.bodies[locale];
+    const order = el("div");
+    const label = input(`${title} Markdown`, body.value, value => {
+      body.value = value;
+      showOrder();
       edited();
-    }, { multiline: true, className: "markdown" })
-  )));
+    }, { multiline: true, className: "markdown" });
+    function showOrder() {
+      const { prefix, blocks } = markdownSections(body.value);
+      order.replaceChildren();
+      if (blocks.length < 2) return;
+      order.append(ordering(blocks, block => block.title, () => {
+        body.value = prefix + blocks.map(block => block.text.trimEnd()).join("\n\n") + "\n";
+        label.querySelector("textarea").value = body.value;
+        edited();
+      }));
+    }
+    showOrder();
+    return el("div", {}, label, order);
+  });
+  return fieldset("Page content", el("div", { className: "grid" }, ...fields));
 }
 
 function advanced(record) {
@@ -332,11 +420,24 @@ function specialForm(record) {
 
 function genericField(name, value, change) {
   if (Array.isArray(value)) {
-    const items = value.map((item, index) => fieldset(`${display(item) || name} ${index + 1}`,
-      genericField(typeof item === "object" ? "Details" : "Value", item, next => { value[index] = next; edited(); }),
-      button("Remove item", () => { value.splice(index, 1); edited(); render(); })
-    ));
-    return fieldset(name, ...items, button("Add item", () => { value.push(reset(value[0])); edited(); render(); }));
+    const entries = value.map((item, index) => ({ item, index }));
+    const items = el("div", { className: "editor" }, ...entries.map(entry => {
+      const card = fieldset(`${display(entry.item) || name} ${entry.index + 1}`,
+        genericField(typeof entry.item === "object" ? "Details" : "Value", entry.item, next => {
+          entry.item = next;
+          value[entries.indexOf(entry)] = next;
+          edited();
+        }),
+        button("Remove item", () => { value.splice(entries.indexOf(entry), 1); edited(); render(); }));
+      entry.card = card;
+      return card;
+    }));
+    const order = entries.length > 1 ? [ordering(entries, entry => display(entry.item) || String(entry.item) || name, () => {
+      value.splice(0, value.length, ...entries.map(entry => entry.item));
+      for (const entry of entries) items.append(entry.card);
+      edited();
+    })] : [];
+    return fieldset(name, ...order, items, button("Add item", () => { value.push(reset(value[0])); edited(); render(); }));
   }
   if (value && typeof value === "object") {
     if (Object.keys(value).sort().join(",") === "en,ja") return translated(name, value, (locale, text) => update(value, locale, text));
@@ -373,6 +474,22 @@ function render() {
   document.querySelector("#sidebar").hidden = false;
   const { section, data, index } = current;
   workspace.replaceChildren(el("div", { className: "section-header" }, el("h1", { text: sections.get(section) })));
+  if (section === "layout") {
+    const { sections: labels } = layoutDefaults[layoutGroup];
+    const ids = [...new Set([...(data[layoutGroup] ?? []), ...Object.keys(labels)])].filter(id => Object.hasOwn(labels, id));
+    workspace.append(
+      el("p", { className: "hint", text: "Drag a section or use Up and Down. The order applies to English and Japanese pages." }),
+      select("Page or section group", Object.fromEntries(Object.entries(layoutDefaults).map(([id, group]) => [id, group.label])), layoutGroup, id => {
+        layoutGroup = id;
+        render();
+      }),
+      ordering(ids, id => labels[id], () => {
+        data[layoutGroup] = ids;
+        edited();
+      })
+    );
+    return;
+  }
   if (section === "media") {
     workspace.append(el("p", { className: "hint", text: "Copy a local path for use in a profile field or Markdown image. Save uploads before using the paths." }),
       uploadField(async files => {
@@ -388,17 +505,26 @@ function render() {
   const array = Array.isArray(data);
   const entry = array ? data[index] : data;
   if (array) {
-    const options = Object.fromEntries(data.map((record, position) => [position, display(record) || (position === index && current.isNew ? "New record" : `Record ${position + 1}`)]));
-    workspace.append(el("div", { className: "toolbar" },
-      select("Choose record", options, String(index), value => {
+    const name = (record, position) => display(record) || (record === entry && current.isNew ? "New record" : `Record ${position + 1}`);
+    const recordSelect = select("Choose record", Object.fromEntries(data.map((record, position) => [position, name(record, position)])), String(index), value => {
         const { section, index } = current;
         if (canLeave()) run(async () => {
           await loadSection(section, Number(value));
           status();
         });
         else workspace.querySelector("select").value = String(index);
-      }),
+      });
+    workspace.append(el("div", { className: "toolbar" }, recordSelect,
       button(section === "projects" ? "Add project" : section === "articles" ? "Add article" : "Add record", newRecord)));
+    if (data.length > 1) {
+      workspace.append(el("details", { className: "panel" }, el("summary", { text: "Reorder records" }), ordering(data, name, () => {
+        current.index = data.indexOf(entry);
+        const field = recordSelect.querySelector("select");
+        for (const [position, option] of Array.from(field.options).entries()) option.textContent = name(data[position], position);
+        field.value = String(current.index);
+        edited();
+      })));
+    }
   }
   if (!entry) return;
   const form = special() ? specialForm(entry) : [
@@ -465,14 +591,12 @@ async function saveRecord() {
   if (section === "media") {
     for (const [asset, blob] of uploads) changes.push({ path: "public" + asset, before: null, value: blob });
   }
-  const savedData = section === "experience"
-    ? [...data].sort((a, b) => textValue(b.start).localeCompare(textValue(a.start)))
-    : data;
-  if (path) changes.push({ path, before, value: json(savedData) });
+  if (path) changes.push({ path, before, value: json(data) });
   try {
     await saveChanges(root, changes);
   } catch (error) {
     for (const change of changes.filter(item => item.saved)) {
+      pendingVersions.add(change.path);
       if (change.locale) {
         bodies[change.locale].path = change.path;
         bodies[change.locale].before = change.value;
@@ -482,8 +606,9 @@ async function saveRecord() {
     }
     throw error;
   }
-  await loadSection(section, Array.isArray(savedData) ? savedData.indexOf(record) : index);
-  status("Saved to your portfolio checkout.");
+  for (const change of changes) pendingVersions.add(change.path);
+  await loadSection(section, index);
+  await saveVersion();
 }
 
 connect.addEventListener("click", () => {
@@ -492,14 +617,121 @@ connect.addEventListener("click", () => {
     if (location.hostname !== "127.0.0.1" || !window.showDirectoryPicker) {
       throw new Error("Open this local address in desktop Chrome or Edge to use folder access.");
     }
-    root = await openWorkspace(await window.showDirectoryPicker({ mode: "readwrite", id: "robotics-portfolio" }));
+    const selected = await openWorkspace(await window.showDirectoryPicker({ mode: "readwrite", id: "robotics-portfolio" }));
+    const marker = await readText(selected, ".portfolio-admin-session");
+    if (!marker) throw new Error("Select the portfolio checkout where npm run admin is running.");
+    await api("state", {}, marker);
+    layoutDefaults = await fetch("/section-layout.json").then(response => response.json());
+    root = selected;
+    token = marker;
     await loadSection("projects");
     document.querySelector("#folder-status").textContent = root.name;
     connect.textContent = "Change folder";
     status();
   });
 });
-saveButton.addEventListener("click", () => run(saveRecord));
+async function api(action, body = {}, key = token) {
+  const response = await fetch(`/api/${action}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-Portfolio-Workspace": key },
+    body: JSON.stringify(body)
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error);
+  return data;
+}
+
+async function saveVersion() {
+  try {
+    const result = await api("save", { paths: [...pendingVersions] });
+    pendingVersions.clear();
+    status(result.version ? "Saved as a local Git version." : "Saved to your portfolio checkout.");
+  } catch (error) {
+    throw new Error(`Files saved locally. Git version pending. ${error.message}`);
+  }
+}
+
+async function savePending() {
+  if (dirty) await saveRecord();
+  else if (pendingVersions.size) await saveVersion();
+}
+
+function showReview(title, ...body) {
+  const heading = el("h2", { text: title });
+  heading.id = "review-title";
+  dialog.replaceChildren(el("div", { className: "toolbar" }, heading, button("Close", () => dialog.close())), ...body);
+  if (!dialog.open) dialog.showModal();
+}
+
+function link(text, href) {
+  const anchor = el("a", { text });
+  anchor.href = href;
+  anchor.target = "_blank";
+  anchor.rel = "noopener";
+  return anchor;
+}
+
+saveButton.addEventListener("click", () => run(savePending));
+
+previewButton.addEventListener("click", () => {
+  const tab = window.open("about:blank", "_blank");
+  if (tab) tab.opener = null;
+  run(async () => {
+    try {
+      await savePending();
+      status("Building the local preview…");
+      const { url } = await api("preview");
+      if (tab) tab.location.href = url;
+      status("Local preview is ready.");
+      notice.append(" ", link("Open preview", url));
+    } catch (error) {
+      tab?.close();
+      throw error;
+    }
+  });
+});
+
+versionsButton.addEventListener("click", () => run(async () => {
+  const data = await api("state");
+  const list = el("ol", {}, ...data.history.map(item => {
+    const stamp = new Date(item.date).toLocaleString();
+    const version = el("li", {}, el("strong", { text: item.message }), el("p", { className: "muted",
+      text: `${item.id.slice(0, 7)} · ${stamp}${item.id === data.remoteHead ? " · On GitHub" : ""}` }));
+    version.append(button("Restore this version", () => {
+      showReview("Restore portfolio version", el("p", { text: `Restore content from ${item.id.slice(0, 7)}? Current edits are saved first. The restoration becomes a new local version you can preview or push.` }),
+        button("Restore and save", () => {
+          dialog.close();
+          run(async () => {
+            await savePending();
+            const result = await api("restore", { id: item.id });
+            await loadSection(current.section, current.index);
+            status(result.version ? "Restored as a new local Git version." : "The portfolio already matches that version.");
+          });
+        }));
+    }));
+    return version;
+  }));
+  showReview("Portfolio versions", el("p", { text: "Saved versions stay available after you push." }), list);
+}));
+
+pushButton.addEventListener("click", () => run(async () => {
+  await savePending();
+  const data = await api("state");
+  const label = el("p", { text: "Review the local versions and saved files below. Confirm to push main to ishafayetul/ishafayetul.github.io and start GitHub Pages." });
+  const list = el("ul", {}, ...[...data.ahead, ...data.paths].map(value => el("li", { text: value })));
+  const files = el("details", {}, el("summary", { text: "Files in this push" }),
+    el("ul", {}, ...[...new Set([...data.outgoing, ...data.paths])].map(path => el("li", { text: path }))));
+  const visibility = el("p", { className: "muted", text: "Files pushed to this public repository are visible on GitHub, including draft content." });
+  showReview("Push & deploy", label, list, files, visibility, button("Confirm push & deploy", () => {
+    dialog.close();
+    run(async () => {
+      status("Checking the portfolio before pushing…");
+      const result = await api("push", { proof: data.proof });
+      status(result.message);
+      if (result.url) notice.append(" ", link("Track deployment", result.url));
+    });
+  }));
+}));
 window.addEventListener("beforeunload", event => {
   if (dirty) event.preventDefault();
 });

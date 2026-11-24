@@ -16,9 +16,16 @@ Open [http://localhost:3000](http://localhost:3000). English uses unprefixed URL
 
 ## Local admin
 
-Run `npm run admin` and open [the admin editor](http://127.0.0.1:4174/) in desktop Chrome or Edge. Choose **Open portfolio folder**, select this repository's root, and grant local file access. The editor uses the browser's folder permission to read and write source files in the checkout. The localhost server serves the editor files.
+Run `npm run admin` and open [the admin editor](http://127.0.0.1:4174/) in desktop Chrome or Edge. Choose **Open portfolio folder**, select this repository's root, and grant local file access. The editor uses the browser's folder permission to read and write source files in the checkout. Run the editor from this checkout so its local Git controls can identify the selected folder.
 
-Use **Projects** and **Technical notes** for bilingual metadata and Markdown. Use **Project media** to add a thumbnail, gallery photos or architecture images. Use **Image library** to import a WebP and copy its path for the profile or an article. Profile, jobs, publications, achievements, qualifications, teaching and interface copy have their own sections. Save each record, then review your Git diff. Rebuild the public site after editing.
+Use **Projects** and **Technical notes** for bilingual metadata and Markdown. **Page layout** manages section order across both languages. Drag the rows or use **Up** and **Down**. Record lists, image galleries and Markdown headings also have ordering controls.
+
+- **Save changes** writes files to your checkout and records a local Git version. The editor uses Gitleaks from your PATH or `PORTFOLIO_GITLEAKS`. The original workspace has a verified local scanner copy in the ignored `.portfolio-tools` directory.
+- **Preview** saves pending edits and builds a local copy on a separate localhost address. Use it to review the changes before publishing.
+- **Versions** lists saved Git content snapshots, including pushed versions. Restoring creates a new local commit and preserves prior edits in history. Push the restoration if it should go live.
+- **Push & deploy** shows the pending versions and destination for confirmation, validates the content, scans the outgoing changes, pushes to `main`, and starts the GitHub Pages workflow. It uses your existing GitHub CLI login. The button targets `ishafayetul/ishafayetul.github.io`.
+
+Use the image library to import publication-approved assets and copy project-relative paths for profile fields or Markdown.
 
 The editor runs on the local loopback address and is outside the public build. Its folder permission is scoped to the folder you choose. [Chrome folder access documentation](https://developer.chrome.com/docs/capabilities/web-apis/file-system-access).
 

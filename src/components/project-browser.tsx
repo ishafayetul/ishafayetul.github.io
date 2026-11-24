@@ -6,7 +6,7 @@ import { messages, type Locale, type Project } from "@/lib/content";
 import { filterProjects } from "@/lib/project-filter";
 import { ProjectCard } from "./project-card";
 
-export function ProjectBrowser({ projects, locale }: { projects: Project[]; locale: Locale }) {
+export function ProjectBrowser({ projects, locale, groupOrder }: { projects: Project[]; locale: Locale; groupOrder: string[] }) {
   const t = messages[locale];
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("");
@@ -15,11 +15,13 @@ export function ProjectBrowser({ projects, locale }: { projects: Project[]; loca
   const technologies = [...new Set(projects.flatMap(project => project.technologies))].sort((a, b) => a.localeCompare(b));
   const results = filterProjects(projects, locale, query, category, technology, sort);
   const filtering = Boolean(query || category || technology || sort !== "relevance");
-  const groups = filtering ? [{ title: t.allProjects, list: results }] : [
-    { title: t.featured, list: results.filter(project => project.featured) },
-    { title: t.otherProjects, list: results.filter(project => !project.featured && !project.archive) },
-    { title: t.projectArchive, list: results.filter(project => project.archive) }
-  ];
+  const catalog = {
+    featured: { title: t.featured, list: results.filter(project => project.featured) },
+    other: { title: t.otherProjects, list: results.filter(project => !project.featured && !project.archive) },
+    archive: { title: t.projectArchive, list: results.filter(project => project.archive) }
+  };
+  const groups = filtering ? [{ title: t.allProjects, list: results }]
+    : groupOrder.map(id => catalog[id as keyof typeof catalog]);
 
   return <>
     <div className="filter-panel">

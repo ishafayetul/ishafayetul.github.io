@@ -9,6 +9,7 @@ if (url && (url.protocol !== "https:" || url.username || url.password || url.sea
 
 const config: NextConfig = {
   output: "export",
+  ...(process.env.PORTFOLIO_PREVIEW === "1" ? { distDir: ".portfolio-admin-preview" } : {}),
   trailingSlash: true,
   basePath,
   env: { NEXT_PUBLIC_SITE_BASE_PATH: basePath },
