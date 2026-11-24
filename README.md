@@ -18,7 +18,7 @@ Open [http://localhost:3000](http://localhost:3000). English uses unprefixed URL
 
 Run `npm run admin` and open [the admin editor](http://127.0.0.1:4174/) in desktop Chrome or Edge. Choose **Open portfolio folder**, select this repository's root, and grant local file access. The editor uses the browser's folder permission to read and write source files in the checkout. Run the editor from this checkout so its local Git controls can identify the selected folder.
 
-Use **Projects** and **Technical notes** for bilingual metadata and Markdown. **Page layout** manages section order across both languages. Drag the rows or use **Up** and **Down**. Record lists, image galleries and Markdown headings also have ordering controls.
+Use **Projects** and **Technical Blogs** for bilingual metadata and Markdown. **Page layout** manages section order across both languages. Drag the rows or use **Up** and **Down**. Record lists, image galleries and Markdown headings also have ordering controls.
 
 - **Save changes** writes files to your checkout and records a local Git version. The editor uses Gitleaks from your PATH or `PORTFOLIO_GITLEAKS`. The original workspace has a verified local scanner copy in the ignored `.portfolio-tools` directory.
 - **Preview** saves pending edits and builds a local copy on a separate localhost address. Use it to review the changes before publishing.

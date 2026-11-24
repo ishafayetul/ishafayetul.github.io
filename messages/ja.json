@@ -8,7 +8,7 @@
     "contact": "お問い合わせ",
     "achievements": "受賞・助成",
     "teaching": "教育活動",
-    "blog": "技術ノート",
+    "blog": "技術ブログ",
     "resume": "英文レジュメ"
   },
   "descriptions": {
@@ -123,7 +123,6 @@
   "mentorText": "Adamjee Cantonment College Robotics Clubで、Arduinoプログラミング、ロボット設計、大会参加を指導しました。",
   "courses": "担当講座",
   "courseList": "講座情報",
-  "technicalNotes": "技術ノート",
   "resumePreview": "レジュメのプレビュー",
   "resumePdfLanguage": "英文PDF",
   "profileHighlights": "主な経歴・実績",

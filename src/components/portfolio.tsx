@@ -309,8 +309,8 @@ export function Teaching({ locale }: { locale: Locale }) {
 export function Blog({ locale }: { locale: Locale }) {
   const t = messages[locale];
   return orderedSections("blog", {
-    intro: <PageIntro title={t.technicalNotes} description={t.descriptions.blog} />,
-    posts: <section className="container content-section info-grid blog-grid" aria-label={t.technicalNotes}>
+    intro: <PageIntro title={t.nav.blog} description={t.descriptions.blog} />,
+    posts: <section className="container content-section info-grid blog-grid" aria-label={t.nav.blog}>
       {articles.map(article => <article className="info-card" key={article.slug}>
         <BookOpen className="content-icon" aria-hidden="true" /><h2><a href={route(locale, "blog", article.slug)}>{article.title[locale]}</a></h2>
         <p>{article.summary[locale]}</p><Tags items={article.tags} />
@@ -323,13 +323,13 @@ export function ArticleDetail({ locale, article }: { locale: Locale; article: Ar
   const t = messages[locale];
   const project = projects.find(project => project.slug === article.project);
   return orderedSections("articleDetail", {
-    intro: <PageIntro title={article.title[locale]} description={article.summary[locale]} label={t.technicalNotes}><Tags items={article.tags} /></PageIntro>,
+    intro: <PageIntro title={article.title[locale]} description={article.summary[locale]} label={t.nav.blog}><Tags items={article.tags} /></PageIntro>,
     details: <div className="container content-section">
       {orderedSections("articleBody", {
         markdown: <article className="markdown"><Markdown urlTransform={markdownUrl}>{getMarkdown(locale, "blog", article.slug)}</Markdown></article>,
         related: project && <div className="article-related"><h2>{t.related}</h2><a className="text-link" href={route(locale, "projects", project.slug)}>{project.title[locale]}</a></div>
       })}
-      <a className="text-link back-link" href={route(locale, "blog")}>{t.technicalNotes}</a>
+      <a className="text-link back-link" href={route(locale, "blog")}>{t.nav.blog}</a>
     </div>
   });
 }

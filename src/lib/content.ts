@@ -67,8 +67,8 @@ export type Publication = {
 export const projects = (projectData as Project[]).filter(project => !project.draft);
 export const articles: Article[] = articleData;
 export const publications = publicationData as Publication[];
-export const primaryNav = ["home", "projects", "experience", "research", "about", "contact"] as const;
-export const secondaryNav = ["achievements", "teaching", "blog", "resume"] as const;
+export const primaryNav = ["home", "projects", "experience", "research", "teaching", "achievements", "blog", "about", "contact"] as const;
+export const secondaryNav = ["resume"] as const;
 export const pageNames = [...primaryNav, ...secondaryNav];
 export type PageName = typeof pageNames[number];
 

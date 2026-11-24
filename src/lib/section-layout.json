@@ -11,7 +11,7 @@
   "achievements":{"label":"Achievements","sections":{"intro":"Page introduction","recognition":"Awards and grants"}},
   "recognition":{"label":"Achievement groups","sections":{"team":"Competition awards","grant":"Grants"}},
   "teaching":{"label":"Teaching","sections":{"intro":"Page introduction","courses":"Courses","workshops":"Workshops","leadership":"Leadership"}},
-  "blog":{"label":"Technical notes","sections":{"intro":"Page introduction","posts":"Articles"}},
+  "blog":{"label":"Technical Blogs","sections":{"intro":"Page introduction","posts":"Articles"}},
   "contact":{"label":"Contact","sections":{"intro":"Page introduction","details":"Contact details"}},
   "contactDetails":{"label":"Contact details columns","sections":{"email":"Email","links":"External links"}},
   "resume":{"label":"Résumé","sections":{"intro":"Page introduction and download","document":"Document preview"}},

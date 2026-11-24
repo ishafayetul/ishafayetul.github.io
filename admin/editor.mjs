@@ -4,7 +4,7 @@ import { markdownSections, moveItem } from "./reorder.mjs";
 
 const jsonFile = name => `content/data/${name}.json`;
 const sections = new Map([
-  ["layout", "Page layout"], ["projects", "Projects"], ["articles", "Technical notes"], ["profile", "Profile"],
+  ["layout", "Page layout"], ["projects", "Projects"], ["articles", "Technical Blogs"], ["profile", "Profile"],
   ["experience", "Experience"], ["education", "Education"], ["skills", "Skills"],
   ["publications", "Publications"], ["achievements", "Achievements"], ["teaching", "Teaching"],
   ["certifications", "Language qualifications"], ["outreach", "Outreach"], ["activities", "Activities"],
