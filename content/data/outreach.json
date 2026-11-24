@@ -1,4 +1,35 @@
 [
-  {"title":{"en":"Introduction to Robotics","ja":"ロボティクス入門"},"organization":{"en":"Southeast Computer Club, Southeast University","ja":"Southeast University・Southeast Computer Club"},"year":2024,"url":"https://www.linkedin.com/posts/seucc_seucc-robotics-futuretech-activity-7253524378640896000-0LVo"},
-  {"title":{"en":"Robotics workshop","ja":"ロボティクス・ワークショップ"},"organization":{"en":"Notre Dame College, Dhaka","ja":"Notre Dame College（ダッカ）"}}
+  {
+    "title": {
+      "en": "Introduction to Robotics",
+      "ja": "ロボティクス入門"
+    },
+    "organization": {
+      "en": "Southeast Computer Club, Southeast University",
+      "ja": "Southeast University・Southeast Computer Club"
+    },
+    "year": 2024,
+    "url": "https://www.linkedin.com/posts/seucc_seucc-robotics-futuretech-activity-7253524378640896000-0LVo",
+    "image": {
+      "src": "/images/projects/outreach-1729774677678-00f17492.webp",
+      "alt": {
+        "en": "Keynote Speaker - SEU",
+        "ja": "Keynote Speaker - SEU"
+      },
+      "caption": {
+        "en": "Keynote Speaker - SEU",
+        "ja": "Keynote Speaker - SEU"
+      }
+    }
+  },
+  {
+    "title": {
+      "en": "Robotics workshop",
+      "ja": "ロボティクス・ワークショップ"
+    },
+    "organization": {
+      "en": "Notre Dame College, Dhaka",
+      "ja": "Notre Dame College（ダッカ）"
+    }
+  }
 ]
