@@ -30,7 +30,14 @@
     "relatedProjects": [
       "uav-safe-landing",
       "surveillance-rescue-robot"
-    ]
+    ],
+    "thumbnail": {
+      "src": "/images/projects/aeromed-chatgpt-image-nov-24-2026-10-04-38-pm-37b2a9e5.webp",
+      "alt": {
+        "en": "AeroMed",
+        "ja": "エロメッド"
+      }
+    }
   },
   {
     "id": "industrial-agv",
