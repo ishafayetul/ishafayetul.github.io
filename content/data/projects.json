@@ -126,10 +126,10 @@
       "ja": "ダッカ大学 ロボティクス・メカトロニクス工学科"
     },
     "thumbnail": {
-      "src": "/images/projects/ihabot.webp",
+      "src": "/images/projects/ihabot-screenshot-from-2026-11-25-02-27-01-c9f5e97c.webp",
       "alt": {
-        "en": "IHABOT medical assistant robot",
-        "ja": "医療支援ロボットIHABOT"
+        "en": "IHABOT2",
+        "ja": "IHABOT2"
       }
     },
     "githubUrl": "https://github.com/ishafayetul/Autonomous-Medical-Assistant-Robot",
