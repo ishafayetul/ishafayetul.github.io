@@ -30,6 +30,13 @@
     "organization": {
       "en": "Notre Dame College, Dhaka",
       "ja": "Notre Dame College（ダッカ）"
+    },
+    "image": {
+      "src": "/images/projects/outreach-screenshot-from-2026-11-25-03-33-43-2a192a84.webp",
+      "alt": {
+        "en": "Robotics Workshop - Notre Dame College, Dhaka",
+        "ja": "Robotics Workshop - Notre Dame College, Dhaka"
+      }
     }
   }
 ]
