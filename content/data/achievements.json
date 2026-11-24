@@ -80,7 +80,14 @@
       "ja": "電装リーダー"
     },
     "project": "uvc-purge-v1",
-    "url": "https://ispr.gov.bd/en/mist-wins-global-championship-in-medical-robotics-competition/"
+    "url": "https://ispr.gov.bd/en/mist-wins-global-championship-in-medical-robotics-competition/",
+    "image": {
+      "src": "/images/projects/achievements-unnamed-1-7dd1c4cb.webp",
+      "alt": {
+        "en": "UVC",
+        "ja": "UVC"
+      }
+    }
   },
   {
     "id": "grant-aeromed",
