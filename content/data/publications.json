@@ -1,0 +1,181 @@
+[
+  {
+    "id": "uvc-purge",
+    "doi": "10.1109/ACCESS.2022.3163243",
+    "type": "journal",
+    "title": "UVC-PURGE: A Novel Cost-Effective Disinfection Robot for Combating COVID-19 Pandemic",
+    "year": 2022,
+    "authors": [
+      {
+        "given": "Akib",
+        "family": "Zaman"
+      },
+      {
+        "given": "Mohammad",
+        "family": "Shahjahan Majib"
+      },
+      {
+        "given": "Shoeb Ahmed",
+        "family": "Tanjim"
+      },
+      {
+        "given": "Shah Md. Ahasan",
+        "family": "Siddique"
+      },
+      {
+        "given": "Shafayetul",
+        "family": "Islam"
+      },
+      {
+        "given": "Md Shadman",
+        "family": "Aadeeb"
+      },
+      {
+        "given": "Nafiz Imtiaz",
+        "family": "Khan"
+      },
+      {
+        "given": "Riasat",
+        "family": "Haque"
+      },
+      {
+        "given": "Md Rashid Ul",
+        "family": "Islam"
+      },
+      {
+        "given": "M. Rayhan Ferdous",
+        "family": "Faisal"
+      },
+      {
+        "given": "Siddharth",
+        "family": "Malik"
+      },
+      {
+        "given": "Muhammad Nazrul",
+        "family": "Islam"
+      }
+    ],
+    "venue": "IEEE Access",
+    "pages": "37613-37634",
+    "volume": "10",
+    "projects": [
+      "uvc-purge-v1",
+      "uvc-purge-v2"
+    ]
+  },
+  {
+    "id": "phoenix",
+    "doi": "10.1109/ACCESS.2022.3170908",
+    "type": "journal",
+    "title": "Phoenix: Towards Designing and Developing a Human Assistant Rover",
+    "year": 2022,
+    "authors": [
+      {
+        "given": "Akib",
+        "family": "Zaman"
+      },
+      {
+        "given": "Mohammad",
+        "family": "Shahjahan Majib"
+      },
+      {
+        "given": "Shoeb Ahmed",
+        "family": "Tanjim"
+      },
+      {
+        "given": "Shah Md. Ahasan",
+        "family": "Siddique"
+      },
+      {
+        "given": "Fardeen",
+        "family": "Ashraf"
+      },
+      {
+        "given": "Shafayetul",
+        "family": "Islam"
+      },
+      {
+        "given": "Abu Hena Md. Maruf",
+        "family": "Morshed"
+      },
+      {
+        "given": "Shadman Tajwar",
+        "family": "Shahid"
+      },
+      {
+        "given": "Ishraq",
+        "family": "Hasan"
+      },
+      {
+        "given": "Oliullah",
+        "family": "Samir"
+      },
+      {
+        "given": "Safwan",
+        "family": "Shafquat"
+      },
+      {
+        "given": "Naim Ibna Khadem",
+        "family": "Al Bhuyain"
+      },
+      {
+        "given": "Asif Mahmud",
+        "family": "Rayhan"
+      },
+      {
+        "given": "Md. Mushfik Ul",
+        "family": "Islam"
+      },
+      {
+        "given": "Md.",
+        "family": "Akhtaruzzaman"
+      },
+      {
+        "given": "Md. Mahbubur",
+        "family": "Rahman"
+      }
+    ],
+    "venue": "IEEE Access",
+    "pages": "50728-50754",
+    "volume": "10",
+    "projects": [
+      "phoenix-rover"
+    ]
+  },
+  {
+    "id": "ml-support-system",
+    "doi": "10.1109/ICEEICT53905.2021.9667924",
+    "type": "conference",
+    "title": "Developing a Machine Learning Based Support System for Mitigating the Suppression Against Women and Children",
+    "year": 2021,
+    "authors": [
+      {
+        "given": "Md. Rokonuzzaman",
+        "family": "Reza"
+      },
+      {
+        "given": "Fabiha Mukarrama Binte",
+        "family": "Mannan"
+      },
+      {
+        "given": "Dhrubo",
+        "family": "Barua"
+      },
+      {
+        "given": "Shafayetul",
+        "family": "Islam"
+      },
+      {
+        "given": "Nafiz Imtiaz",
+        "family": "Khan"
+      },
+      {
+        "given": "Sharifa Rania",
+        "family": "Mahmud"
+      }
+    ],
+    "venue": "2021 5th International Conference on Electrical Engineering and Information Communication Technology (ICEEICT)",
+    "pages": "1-6",
+    "projects": []
+  }
+]

@@ -1,0 +1,759 @@
+[
+  {
+    "id": "aeromed",
+    "slug": "aeromed",
+    "title": {
+      "en": "AeroMed — Hybrid Drone–Rover Telemedicine System",
+      "ja": "AeroMed — ドローン・ローバーによる遠隔医療支援"
+    },
+    "summary": {
+      "en": "A hybrid aerial and ground platform for medical support in remote areas, funded by Bangladesh’s ICT Innovation Fund.",
+      "ja": "バングラデシュ政府のICT Innovation Fundによる助成を受け、遠隔地の医療支援に向けてUAVと地上ローバーを組み合わせるプロジェクト。"
+    },
+    "category": "uav",
+    "technologies": [
+      "UAV systems",
+      "Teleoperation",
+      "System integration"
+    ],
+    "featured": true,
+    "startDate": "2025",
+    "status": "development",
+    "role": {
+      "en": "Project Lead",
+      "ja": "プロジェクトリーダー"
+    },
+    "organization": {
+      "en": "ICT Innovation Fund · Government of Bangladesh (funder)",
+      "ja": "バングラデシュ政府 ICT Innovation Fund（助成元）"
+    },
+    "relatedProjects": [
+      "uav-safe-landing",
+      "surveillance-rescue-robot"
+    ]
+  },
+  {
+    "id": "industrial-agv",
+    "slug": "industrial-agv",
+    "title": {
+      "en": "Industrial Autonomous Guided Vehicle",
+      "ja": "産業用無人搬送車（AGV）"
+    },
+    "summary": {
+      "en": "ROS-based navigation for an industrial AGV, integrating mapping, localization, local planning and sensor fusion.",
+      "ja": "地図作成、自己位置推定、局所経路計画、センサーフュージョンを統合した産業用AGV向けROSナビゲーション。"
+    },
+    "category": "mobile",
+    "technologies": [
+      "ROS 1",
+      "SLAM",
+      "AMCL",
+      "TEB",
+      "EKF",
+      "LiDAR",
+      "Gazebo",
+      "RViz",
+      "Fusion 360"
+    ],
+    "featured": true,
+    "startDate": "2023-06",
+    "endDate": "2024-03",
+    "role": {
+      "en": "Robotics Engineer — R&D",
+      "ja": "ロボティクスエンジニア（研究開発）"
+    },
+    "organization": {
+      "en": "Unipolar Automation Technology",
+      "ja": "Unipolar Automation Technology"
+    },
+    "githubUrl": "https://github.com/ishafayetul/Autonomous-Guided-Vehicle-Using-ROS1",
+    "relatedProjects": [
+      "ihabot",
+      "surveillance-rescue-robot"
+    ],
+    "thumbnail": {
+      "src": "/images/projects/industrial-agv.webp",
+      "alt": {
+        "en": "CAD rendering of the industrial AGV and its sensor housing",
+        "ja": "産業用AGVとセンサー部のCADレンダリング"
+      }
+    },
+    "hardware": [
+      "RPLIDAR",
+      "IMU",
+      "Mobile base"
+    ],
+    "software": [
+      "ROS 1",
+      "robot_pose_ekf",
+      "rosserial"
+    ]
+  },
+  {
+    "id": "ihabot",
+    "slug": "ihabot",
+    "title": {
+      "en": "Medical Assistant Robot — IHABOT v2",
+      "ja": "医療支援ロボット — IHABOT v2"
+    },
+    "summary": {
+      "en": "Indoor navigation and LiDAR mapping for a medical assistant robot developed at the University of Dhaka.",
+      "ja": "ダッカ大学で開発された医療支援ロボットの屋内ナビゲーションとLiDARマッピング。"
+    },
+    "category": "mobile",
+    "technologies": [
+      "ROS",
+      "LiDAR",
+      "SLAM",
+      "TEB",
+      "Sensor fusion",
+      "Microcontrollers"
+    ],
+    "featured": true,
+    "startDate": "2024-01",
+    "endDate": "2025-04",
+    "role": {
+      "en": "Robotics Research Assistant",
+      "ja": "ロボティクス研究助手"
+    },
+    "organization": {
+      "en": "University of Dhaka · Robotics and Mechatronics Engineering",
+      "ja": "ダッカ大学 ロボティクス・メカトロニクス工学科"
+    },
+    "thumbnail": {
+      "src": "/images/projects/ihabot.webp",
+      "alt": {
+        "en": "IHABOT medical assistant robot",
+        "ja": "医療支援ロボットIHABOT"
+      }
+    },
+    "githubUrl": "https://github.com/ishafayetul/Autonomous-Medical-Assistant-Robot",
+    "relatedProjects": [
+      "industrial-agv",
+      "uvc-purge-v2"
+    ],
+    "gallery": [
+      {
+        "src": "/images/projects/ihabot-site.webp",
+        "alt": {
+          "en": "Original portfolio rendering of the IHABOT cabinet and sensor housing",
+          "ja": "旧ポートフォリオに掲載されたIHABOTの外装とセンサー部のレンダリング"
+        }
+      }
+    ],
+    "hardware": [
+      "LiDAR",
+      "Microcontrollers"
+    ],
+    "software": [
+      "ROS",
+      "2D SLAM",
+      "TEB"
+    ],
+    "architecture": [
+      {
+        "src": "/images/projects/ihabot-tf.webp",
+        "alt": {
+          "en": "Recorded ROS transform tree: odom to robot_footprint to base_link, with imu_link and laser branches.",
+          "ja": "ROSの座標変換ツリーの記録。odom、robot_footprint、base_linkがつながり、imu_linkとlaserへ分岐。"
+        },
+        "caption": {
+          "en": "Recorded ROS transform tree from the project repository.",
+          "ja": "プロジェクトのリポジトリに記録されたROS座標変換ツリー。"
+        }
+      }
+    ]
+  },
+  {
+    "id": "uav-safe-landing",
+    "slug": "uav-safe-landing",
+    "title": {
+      "en": "AI-Based UAV Safe Landing Zone Detection",
+      "ja": "AIによるUAV安全着陸地点検出"
+    },
+    "summary": {
+      "en": "MSc research on identifying and ranking UAV landing zones using semantic segmentation and hazard clearance.",
+      "ja": "セマンティックセグメンテーションと危険領域からの離隔距離を用いて、UAVの着陸候補地点を抽出・順位付けする修士研究。"
+    },
+    "category": "ai",
+    "technologies": [
+      "SegFormer-B0",
+      "Semantic segmentation",
+      "Euclidean distance transform",
+      "PyTorch",
+      "OpenCV",
+      "UAV systems"
+    ],
+    "featured": true,
+    "startDate": "2026",
+    "status": "research",
+    "organization": {
+      "en": "United International University · MSc research",
+      "ja": "United International University・修士研究"
+    },
+    "relatedProjects": [
+      "aeromed"
+    ],
+    "thumbnail": {
+      "src": "/images/projects/uav-safe-landing.webp",
+      "alt": {
+        "en": "Saved aerial analysis with hazard exclusions, a valid-region contour and the circular landing footprint",
+        "ja": "危険領域の除外、候補領域の輪郭、円形の着陸フットプリントを示す空撮画像の解析結果"
+      },
+      "caption": {
+        "en": "Saved aerial analysis with hazard exclusions, a valid-region contour and the circular landing footprint",
+        "ja": "危険領域の除外、候補領域の輪郭、円形の着陸フットプリントを示す空撮画像の解析結果"
+      },
+      "preview": "/images/projects/uav-safe-landing-preview.webp"
+    },
+    "gallery": [
+      {
+        "src": "/images/projects/uav-landing-segmentation.webp",
+        "alt": {
+          "en": "Semantic segmentation output with a color legend for predicted terrain classes",
+          "ja": "予測した地形クラスの凡例付きセマンティックセグメンテーション結果"
+        },
+        "caption": {
+          "en": "Semantic segmentation output with a color legend for predicted terrain classes",
+          "ja": "予測した地形クラスの凡例付きセマンティックセグメンテーション結果"
+        }
+      },
+      {
+        "src": "/images/projects/uav-landing-risk.webp",
+        "alt": {
+          "en": "Landing risk visualization showing various risk levels and hazard regions",
+          "ja": "危険領域と着陸リスクのレベルを可視化した地図"
+        },
+        "caption": {
+          "en": "Landing risk visualization showing various risk levels and hazard regions",
+          "ja": "危険領域と着陸リスクのレベルを可視化した地図"
+        }
+      }
+    ],
+    "githubUrl": "https://github.com/ishafayetul/safe-landing-zone-detection",
+    "categories": [
+      "research",
+      "uav"
+    ],
+    "metrics": [
+      {
+        "label": {
+          "en": "Valid landing regions",
+          "ja": "有効な着陸候補領域"
+        },
+        "value": "1",
+        "conditions": {
+          "en": "Saved sample 525.jpg, configured footprint radius 300 px.",
+          "ja": "保存済みサンプル525.jpg、指定半径300 px。"
+        }
+      },
+      {
+        "label": {
+          "en": "Selected center",
+          "ja": "選定した中心座標"
+        },
+        "value": "(639, 502) px",
+        "conditions": {
+          "en": "Image coordinates for the saved sample.",
+          "ja": "保存済みサンプル上の画像座標。"
+        }
+      },
+      {
+        "label": {
+          "en": "Maximum inscribed radius",
+          "ja": "最大内接円半径"
+        },
+        "value": "374.8 px",
+        "conditions": {
+          "en": "For the selected region in the same saved run.",
+          "ja": "同一のサンプル試行で選定した領域の値。"
+        }
+      }
+    ]
+  },
+  {
+    "id": "phoenix-rover",
+    "slug": "phoenix-rover",
+    "title": {
+      "en": "Phoenix — Mars Rover",
+      "ja": "Phoenix — 火星探査ローバー"
+    },
+    "summary": {
+      "en": "Electrical systems, embedded programming and robotic arm integration for MIST Mongol Barota’s competition rover.",
+      "ja": "MIST Mongol Barotaの競技用ローバーにおける電装、組み込みプログラミング、ロボットアーム統合。"
+    },
+    "category": "competition",
+    "technologies": [
+      "Embedded C/C++",
+      "Robotic manipulation",
+      "System integration"
+    ],
+    "featured": true,
+    "endDate": "2021",
+    "status": "completed",
+    "organization": {
+      "en": "MIST Mongol Barota",
+      "ja": "MIST Mongol Barota"
+    },
+    "role": {
+      "en": "Electrical Team Lead",
+      "ja": "電装チームリーダー"
+    },
+    "demoUrl": "https://youtu.be/0ezyJEdleQM",
+    "youtubeId": "0ezyJEdleQM",
+    "publicationUrl": "https://doi.org/10.1109/ACCESS.2022.3170908",
+    "relatedProjects": [
+      "phoenix-2"
+    ],
+    "thumbnail": {
+      "src": "/images/projects/phoenix-rover.webp",
+      "alt": {
+        "en": "Phoenix Mars Rover and its extended robotic arm outdoors",
+        "ja": "屋外でロボットアームを伸ばした火星探査ローバーPhoenix"
+      },
+      "position": "center 59%",
+      "preview": "/images/projects/phoenix-rover-preview.webp"
+    }
+  },
+  {
+    "id": "surveillance-rescue-robot",
+    "slug": "surveillance-rescue-robot",
+    "title": {
+      "en": "Autonomous Surveillance and Rescue Robot",
+      "ja": "自律型監視・救助ロボット"
+    },
+    "summary": {
+      "en": "ROS 2 navigation, mapping and perception work for a ground robot aimed at disaster response.",
+      "ja": "災害対応を想定した地上ロボット向けのROS 2ナビゲーション、地図作成、環境認識。"
+    },
+    "category": "mobile",
+    "technologies": [
+      "ROS 2",
+      "LiDAR",
+      "IMU",
+      "Mapping",
+      "Obstacle avoidance"
+    ],
+    "featured": true,
+    "organization": {
+      "en": "DIP Foundation / DIP Tech Lab",
+      "ja": "DIP Foundation / DIP Tech Lab"
+    },
+    "relatedProjects": [
+      "industrial-agv",
+      "ihabot"
+    ]
+  },
+  {
+    "id": "uvc-purge-v2",
+    "slug": "uvc-purge-v2",
+    "title": {
+      "en": "UVC Purge V2",
+      "ja": "UVC Purge V2"
+    },
+    "summary": {
+      "en": "Second version of the UVC-PURGE disinfection robot project.",
+      "ja": "UVC-PURGE消毒ロボットの第2版。"
+    },
+    "category": "mobile",
+    "technologies": [
+      "UV-C"
+    ],
+    "demoUrl": "https://youtu.be/hXhjbASMYH0",
+    "youtubeId": "hXhjbASMYH0",
+    "publicationUrl": "https://doi.org/10.1109/ACCESS.2022.3163243",
+    "relatedProjects": [
+      "uvc-purge-v1"
+    ],
+    "thumbnail": {
+      "src": "/images/projects/uvc-purge-v2.webp",
+      "alt": {
+        "en": "UVC Purge V2 with two upright lamps mounted on a round base",
+        "ja": "円形の台座に縦型ランプ2本を備えたUVC Purge V2"
+      },
+      "position": "center 74%",
+      "preview": "/images/projects/uvc-purge-v2-preview.webp"
+    }
+  },
+  {
+    "id": "uvc-purge-v1",
+    "slug": "uvc-purge-v1",
+    "title": {
+      "en": "UVC Purge V1",
+      "ja": "UVC Purge V1"
+    },
+    "summary": {
+      "en": "First version of the UVC-PURGE disinfection robot project.",
+      "ja": "UVC-PURGE消毒ロボットの初期版。"
+    },
+    "category": "mobile",
+    "technologies": [
+      "UV-C"
+    ],
+    "archive": true,
+    "demoUrl": "https://youtu.be/zMmJ9F7EIwo",
+    "youtubeId": "zMmJ9F7EIwo",
+    "publicationUrl": "https://doi.org/10.1109/ACCESS.2022.3163243",
+    "relatedProjects": [
+      "uvc-purge-v2"
+    ],
+    "thumbnail": {
+      "src": "/images/projects/uvc-purge-v1.webp",
+      "alt": {
+        "en": "UVC Purge V1 with its lamp illuminated in an indoor corridor",
+        "ja": "屋内通路でランプを点灯させたUVC Purge V1"
+      }
+    }
+  },
+  {
+    "id": "phoenix-2",
+    "slug": "phoenix-2",
+    "title": {
+      "en": "Phoenix 2.0 — Advanced Mars Rover",
+      "ja": "Phoenix 2.0 — 火星探査ローバー"
+    },
+    "summary": {
+      "en": "MIST Mongol Barota’s follow-on rover for the 2022 international competition season.",
+      "ja": "MIST Mongol Barotaが2022年の国際大会に向けて開発した後継ローバー。"
+    },
+    "category": "competition",
+    "technologies": [
+      "System integration",
+      "Robotic manipulation"
+    ],
+    "startDate": "2021-11",
+    "endDate": "2022-07",
+    "status": "completed",
+    "organization": {
+      "en": "MIST Mongol Barota",
+      "ja": "MIST Mongol Barota"
+    },
+    "role": {
+      "en": "Team Lead",
+      "ja": "チームリーダー"
+    },
+    "demoUrl": "https://youtu.be/wBwTMOv7OeM",
+    "youtubeId": "wBwTMOv7OeM",
+    "relatedProjects": [
+      "phoenix-rover"
+    ],
+    "thumbnail": {
+      "src": "/images/projects/phoenix-2.webp",
+      "alt": {
+        "en": "Phoenix 2.0 rover outdoors with its manipulator raised",
+        "ja": "屋外でマニピュレーターを上げたPhoenix 2.0ローバー"
+      },
+      "position": "center 82%",
+      "preview": "/images/projects/phoenix-2-preview.webp"
+    }
+  },
+  {
+    "id": "drawbot",
+    "slug": "drawbot",
+    "title": {
+      "en": "Drawbot — 3D Mapping Robot",
+      "ja": "Drawbot — 3Dマッピングロボット"
+    },
+    "summary": {
+      "en": "Early robotics project exploring three-dimensional mapping.",
+      "ja": "3次元マッピングを題材とした初期のロボティクスプロジェクト。"
+    },
+    "category": "mobile",
+    "technologies": [
+      "3D mapping"
+    ],
+    "archive": true,
+    "demoUrl": "https://youtu.be/DrkupUCWMu0",
+    "youtubeId": "DrkupUCWMu0",
+    "thumbnail": {
+      "src": "/images/projects/drawbot.webp",
+      "alt": {
+        "en": "Drawbot mapping rover with a depth camera",
+        "ja": "深度カメラを載せた3DマッピングロボットDrawbot"
+      }
+    }
+  },
+  {
+    "id": "robotic-arm-simulation",
+    "slug": "robotic-arm-simulation",
+    "title": {
+      "en": "Robotic Arm Simulation",
+      "ja": "ロボットアームシミュレーション"
+    },
+    "summary": {
+      "en": "A four-revolute-joint arm simulated in Python and Open3D, with forward and inverse kinematics.",
+      "ja": "順運動学・逆運動学を備えた4回転関節ロボットアームのPython・Open3Dシミュレーション。"
+    },
+    "category": "simulation",
+    "technologies": [
+      "Python",
+      "Open3D",
+      "Forward kinematics",
+      "Inverse kinematics"
+    ],
+    "archive": true,
+    "status": "simulation",
+    "thumbnail": {
+      "src": "/images/projects/robotic-arm-simulation.webp",
+      "alt": {
+        "en": "Open3D rendering of the four-joint robot arm",
+        "ja": "Open3Dで描画した4関節ロボットアーム"
+      }
+    },
+    "githubUrl": "https://github.com/ishafayetul/RobotArm4R",
+    "relatedProjects": [
+      "robotic-manipulator",
+      "robotic-manipulator-2"
+    ],
+    "gallery": [
+      {
+        "src": "/images/projects/robotic-arm-simulation-site.webp",
+        "alt": {
+          "en": "Robotic arm simulation with an Open3D scene and control panel",
+          "ja": "Open3Dの描画と操作パネルを含むロボットアームシミュレーション"
+        }
+      }
+    ]
+  },
+  {
+    "id": "robotic-manipulator",
+    "slug": "robotic-manipulator",
+    "title": {
+      "en": "Robotic Manipulator",
+      "ja": "ロボットマニピュレーター"
+    },
+    "summary": {
+      "en": "Early hardware manipulator project from the original portfolio.",
+      "ja": "旧ポートフォリオに掲載した初期のハードウェアマニピュレーター。"
+    },
+    "category": "manipulation",
+    "technologies": [],
+    "archive": true,
+    "thumbnail": {
+      "src": "/images/projects/robotic-manipulator.webp",
+      "alt": {
+        "en": "Robotic manipulator positioned above a chessboard",
+        "ja": "チェス盤の上に配置したロボットマニピュレーター"
+      },
+      "position": "center 37%"
+    }
+  },
+  {
+    "id": "robotic-manipulator-2",
+    "slug": "robotic-manipulator-2",
+    "title": {
+      "en": "Robotic Manipulator — Second Entry",
+      "ja": "ロボットマニピュレーター — 2件目"
+    },
+    "summary": {
+      "en": "A separately documented manipulator from the original project archive.",
+      "ja": "旧ポートフォリオで別に記録されていたマニピュレーター。"
+    },
+    "category": "manipulation",
+    "technologies": [],
+    "archive": true,
+    "thumbnail": {
+      "src": "/images/projects/robotic-manipulator-2.webp",
+      "alt": {
+        "en": "Bench-mounted robotic manipulator with its gripper above a bottle",
+        "ja": "台に固定され、ボトル上にグリッパーを配置したロボットマニピュレーター"
+      }
+    }
+  },
+  {
+    "id": "robot-warrior",
+    "slug": "robot-warrior",
+    "title": {
+      "en": "Robot Warrior",
+      "ja": "Robot Warrior"
+    },
+    "summary": {
+      "en": "Early robotics competition project.",
+      "ja": "初期の競技ロボットプロジェクト。"
+    },
+    "category": "competition",
+    "technologies": [],
+    "archive": true,
+    "thumbnail": {
+      "src": "/images/projects/robot-warrior.webp",
+      "alt": {
+        "en": "Low-profile tracked Robot Warrior chassis",
+        "ja": "低床クローラー式のRobot Warrior"
+      }
+    }
+  },
+  {
+    "id": "iot-embedded-vehicle",
+    "slug": "iot-embedded-vehicle",
+    "title": {
+      "en": "IoT-based Intelligent Embedded Vehicle",
+      "ja": "IoT対応の組み込み車両"
+    },
+    "summary": {
+      "en": "An early embedded vehicle project with an IoT focus.",
+      "ja": "IoTをテーマにした初期の組み込み車両。"
+    },
+    "category": "embedded",
+    "technologies": [],
+    "archive": true,
+    "thumbnail": {
+      "src": "/images/projects/iot-embedded-vehicle.webp",
+      "alt": {
+        "en": "Wheeled embedded vehicle with exposed wiring and ultrasonic sensor",
+        "ja": "配線と超音波センサーが見える車輪型の組み込み車両"
+      },
+      "preview": "/images/projects/iot-embedded-vehicle-preview.webp"
+    }
+  },
+  {
+    "id": "soccer-robot",
+    "slug": "soccer-robot",
+    "title": {
+      "en": "Soccer Robot",
+      "ja": "サッカーロボット"
+    },
+    "summary": {
+      "en": "Robotics project for a robot soccer application.",
+      "ja": "ロボットサッカー向けの開発プロジェクト。"
+    },
+    "category": "competition",
+    "technologies": [],
+    "archive": true,
+    "thumbnail": {
+      "src": "/images/projects/soccer-robot.webp",
+      "alt": {
+        "en": "Four-wheel soccer robot with front ball guides",
+        "ja": "前面にボールガイドを備えた4輪サッカーロボット"
+      },
+      "preview": "/images/projects/soccer-robot-preview.webp"
+    }
+  },
+  {
+    "id": "rc-racing-bot",
+    "slug": "rc-racing-bot",
+    "title": {
+      "en": "RC Racing Bot",
+      "ja": "RCレーシングロボット"
+    },
+    "summary": {
+      "en": "A remotely controlled racing robot.",
+      "ja": "遠隔操作型のレーシングロボット。"
+    },
+    "category": "competition",
+    "technologies": [],
+    "archive": true,
+    "thumbnail": {
+      "src": "/images/projects/rc-racing-bot.webp",
+      "alt": {
+        "en": "RC racing bot with MIST Mechatronics team branding",
+        "ja": "MIST Mechatronicsのロゴが付いたRCレーシングロボット"
+      },
+      "preview": "/images/projects/rc-racing-bot-preview.webp"
+    }
+  },
+  {
+    "id": "pick-and-drop-robot",
+    "slug": "pick-and-drop-robot",
+    "title": {
+      "en": "Pick and Drop Robot",
+      "ja": "ピックアンドドロップロボット"
+    },
+    "summary": {
+      "en": "An early object-handling robotics project.",
+      "ja": "物体の移載を題材とした初期のロボット開発。"
+    },
+    "category": "manipulation",
+    "technologies": [],
+    "archive": true,
+    "thumbnail": {
+      "src": "/images/projects/pick-and-drop-robot.webp",
+      "alt": {
+        "en": "Pick and drop robot with a tracked base, arm and exposed wiring",
+        "ja": "クローラー式の台車、アーム、配線を備えたピックアンドドロップロボット"
+      },
+      "preview": "/images/projects/pick-and-drop-robot-preview.webp"
+    }
+  },
+  {
+    "id": "digital-door-lock",
+    "slug": "digital-door-lock",
+    "title": {
+      "en": "Digital Door Lock",
+      "ja": "デジタルドアロック"
+    },
+    "summary": {
+      "en": "An embedded systems project for a digital door lock.",
+      "ja": "デジタルドアロックを題材とした組み込み開発。"
+    },
+    "category": "embedded",
+    "technologies": [],
+    "archive": true,
+    "thumbnail": {
+      "src": "/images/projects/digital-door-lock.webp",
+      "alt": {
+        "en": "Digital door lock prototype with keypad and display",
+        "ja": "キーパッドと表示器を備えたデジタルドアロックの試作機"
+      }
+    }
+  },
+  {
+    "id": "ros2-gazebo-mobile-robot",
+    "slug": "ros2-gazebo-mobile-robot",
+    "title": {
+      "en": "ROS 2 Mobile Robot Simulation",
+      "ja": "ROS 2 移動ロボットシミュレーション"
+    },
+    "summary": {
+      "en": "A four-wheel robot model with ROS 2 Humble launch files for Gazebo, bridge integration and RViz visualization.",
+      "ja": "4輪移動ロボットのモデルと、Gazebo、ブリッジ、RViz可視化のためのROS 2 Humble起動設定。"
+    },
+    "category": "simulation",
+    "categories": [
+      "mobile"
+    ],
+    "technologies": [
+      "ROS 2",
+      "Gazebo",
+      "RViz",
+      "URDF",
+      "Xacro"
+    ],
+    "status": "simulation",
+    "startDate": "2025",
+    "githubUrl": "https://github.com/ishafayetul/ros2-humble-ign-gazebo",
+    "relatedProjects": [
+      "industrial-agv",
+      "surveillance-rescue-robot"
+    ]
+  },
+  {
+    "id": "ros2-manipulator",
+    "slug": "ros2-manipulator",
+    "title": {
+      "en": "ROS 2 Manipulator Integration",
+      "ja": "ROS 2 マニピュレーター統合"
+    },
+    "summary": {
+      "en": "A ROS 2 Humble arm workspace with simulated joint control, MoveIt configuration and a C++ planning interface.",
+      "ja": "シミュレーション上の関節制御、MoveIt設定、C++の動作計画インターフェースを備えたROS 2 Humbleのアーム開発環境。"
+    },
+    "category": "manipulation",
+    "categories": [
+      "simulation"
+    ],
+    "technologies": [
+      "ROS 2",
+      "MoveIt",
+      "ros2_control",
+      "Gazebo",
+      "C++"
+    ],
+    "status": "simulation",
+    "startDate": "2024",
+    "githubUrl": "https://github.com/ishafayetul/manipulator01-ros-humble",
+    "relatedProjects": [
+      "robotic-arm-simulation",
+      "ros2-gazebo-mobile-robot"
+    ]
+  }
+]

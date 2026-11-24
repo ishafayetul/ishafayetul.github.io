@@ -1,0 +1,57 @@
+{
+  "name": "Shafayetul Islam",
+  "location": {
+    "en": "Dhaka, Bangladesh",
+    "ja": "バングラデシュ・ダッカ"
+  },
+  "email": "shafatsib@gmail.com",
+  "github": "https://github.com/ishafayetul",
+  "linkedin": "https://www.linkedin.com/in/ishafayetul/",
+  "youtube": null,
+  "scholar": "https://scholar.google.com/citations?user=0ZBLhl8AAAAJ",
+  "resume": "/documents/shafayetul-islam-resume.pdf",
+  "portrait": {
+    "src": "/images/profile/shafayetul-islam.webp",
+    "alt": {
+      "en": "Portrait of Shafayetul Islam",
+      "ja": "Shafayetul Islamのポートレート"
+    }
+  },
+  "highlights": [
+    {
+      "value": "3+",
+      "label": {
+        "en": "Years in robotics engineering",
+        "ja": "ロボティクスの実務経験（年）"
+      }
+    },
+    {
+      "value": "3",
+      "label": {
+        "en": "IEEE publications",
+        "ja": "IEEE掲載論文"
+      }
+    },
+    {
+      "value": "ICT",
+      "label": {
+        "en": "Government-funded research",
+        "ja": "政府助成の研究開発"
+      }
+    },
+    {
+      "value": "M.Sc.",
+      "label": {
+        "en": "Computer science · AI, in progress",
+        "ja": "コンピュータ科学・AI専攻（在学中）"
+      }
+    },
+    {
+      "value": "N4",
+      "label": {
+        "en": "Japanese · JLPT passed",
+        "ja": "日本語能力試験N4合格"
+      }
+    }
+  ]
+}

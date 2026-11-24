@@ -1,0 +1,48 @@
+[
+  {
+    "year": 2022,
+    "title": {
+      "en": "Team Lead · MIST Mongol Barota",
+      "ja": "チームリーダー · MIST Mongol Barota"
+    },
+    "description": {
+      "en": "Led cross-functional rover development and coordinated system integration for international competitions.",
+      "ja": "国際大会に向け、複数分野にまたがるローバー開発とシステム統合を取りまとめました。"
+    }
+  },
+  {
+    "year": 2022,
+    "title": {
+      "en": "Mentor · Adamjee Cantonment College Robotics Club",
+      "ja": "メンター · Adamjee Cantonment College Robotics Club"
+    },
+    "description": {
+      "en": "Mentored students in Arduino programming, robot design and robotics competitions.",
+      "ja": "Arduinoプログラミング、ロボット設計、大会参加について学生を指導しました。"
+    },
+    "club": true
+  },
+  {
+    "year": 2021,
+    "title": {
+      "en": "Technical Vice President · MIST Robotics Club",
+      "ja": "技術担当副代表 · MIST Robotics Club"
+    },
+    "description": {
+      "en": "Organized training and workshops and supported student embedded systems and robotics projects.",
+      "ja": "研修やワークショップを企画し、学生の組み込み・ロボティクス研究を支援しました。"
+    },
+    "club": true
+  },
+  {
+    "year": 2016,
+    "title": {
+      "en": "Chief of Management · Neutrino Adamjee Science Club",
+      "ja": "運営責任者 · Neutrino Adamjee Science Club"
+    },
+    "description": {
+      "en": "Coordinated science events and student fairs.",
+      "ja": "科学イベントや学生向け展示会の運営を担当しました。"
+    }
+  }
+]

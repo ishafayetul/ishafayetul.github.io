@@ -1,0 +1,8 @@
+[
+  {"id":"robotics","label":{"en":"Robotics & autonomy","ja":"ロボティクス・自律システム"},"technologies":["ROS","ROS 2","Nav2","SLAM","SLAM Toolbox","GMapping","AMCL","TEB","EKF","MoveIt","Sensor fusion","Path planning","Motion control"]},
+  {"id":"uav","label":{"en":"UAV systems","ja":"UAVシステム"},"technologies":["PX4","ArduPilot","MAVLink","MAVSDK","QGroundControl","Mission Planner","UAV simulation"]},
+  {"id":"perception","label":{"en":"AI & perception","ja":"AI・環境認識"},"technologies":["PyTorch","TensorFlow","OpenCV","Open3D","YOLO","SegFormer","Semantic segmentation","Computer vision","Machine learning"]},
+  {"id":"simulation","label":{"en":"Simulation & visualization","ja":"シミュレーション・可視化"},"technologies":["Gazebo","Gazebo Harmonic","RViz","Fusion 360"]},
+  {"id":"software","label":{"en":"Software development","ja":"ソフトウェア開発"},"technologies":["Python","C++","Java","Embedded C/C++","Linux","Git","Docker"]},
+  {"id":"hardware","label":{"en":"Hardware & embedded","ja":"ハードウェア・組み込み"},"technologies":["NVIDIA Jetson","Raspberry Pi","Arduino","ESP32","LiDAR","IMU","Cameras","Microcontrollers"]}
+]

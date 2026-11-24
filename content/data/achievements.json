@@ -1,0 +1,106 @@
+[
+  {
+    "id": "arc-2022",
+    "year": 2022,
+    "kind": "team",
+    "title": {
+      "en": "Anatolian Rover Challenge",
+      "ja": "Anatolian Rover Challenge"
+    },
+    "result": {
+      "en": "Third place · MIST Mongol Barota",
+      "ja": "3位 · MIST Mongol Barota"
+    },
+    "organization": {
+      "en": "Space Exploration Society (UKET)",
+      "ja": "Space Exploration Society（UKET）"
+    },
+    "role": {
+      "en": "Team Lead",
+      "ja": "チームリーダー"
+    },
+    "project": "phoenix-2",
+    "url": "https://mongol-barota.mist.ac.bd/achievements"
+  },
+  {
+    "id": "urc-2021",
+    "year": 2021,
+    "kind": "team",
+    "title": {
+      "en": "University Rover Challenge",
+      "ja": "University Rover Challenge"
+    },
+    "result": {
+      "en": "Perfect score · Equipment Servicing Mission · MIST Mongol Barota",
+      "ja": "機器整備ミッション満点 · MIST Mongol Barota"
+    },
+    "organization": {
+      "en": "The Mars Society",
+      "ja": "The Mars Society"
+    },
+    "role": {
+      "en": "Electrical Team Lead",
+      "ja": "電装チームリーダー"
+    },
+    "project": "phoenix-rover",
+    "url": "https://urc.marssociety.org/home/about-urc/archives/urc2021/virtual-university-rover-challenge-2021-gets-teams-roving"
+  },
+  {
+    "id": "medical-2020",
+    "year": 2020,
+    "kind": "team",
+    "title": {
+      "en": "Medical Robotics for Contagious Diseases Challenge",
+      "ja": "Medical Robotics for Contagious Diseases Challenge"
+    },
+    "result": {
+      "en": "Application category winner · MIST team",
+      "ja": "応用部門優勝 · MISTチーム"
+    },
+    "organization": {
+      "en": "Imperial College London / UK-RAS Network",
+      "ja": "Imperial College London / UK-RAS Network"
+    },
+    "role": {
+      "en": "Electrical Lead",
+      "ja": "電装リーダー"
+    },
+    "project": "uvc-purge-v1",
+    "url": "https://ispr.gov.bd/en/mist-wins-global-championship-in-medical-robotics-competition/"
+  },
+  {
+    "id": "grant-aeromed",
+    "year": 2025,
+    "kind": "grant",
+    "title": {
+      "en": "AeroMed — Hybrid Drone–Rover Telemedicine System",
+      "ja": "AeroMed — ドローン・ローバーによる遠隔医療支援"
+    },
+    "result": {
+      "en": "ICT Innovation Fund, Government of Bangladesh",
+      "ja": "バングラデシュ政府 ICT Innovation Fund"
+    },
+    "role": {
+      "en": "Project Lead",
+      "ja": "プロジェクトリーダー"
+    },
+    "project": "aeromed"
+  },
+  {
+    "id": "grant-xobotics",
+    "year": 2021,
+    "kind": "grant",
+    "title": {
+      "en": "Robotics development initiative with XOBOTICS",
+      "ja": "XOBOTICSとのロボティクス開発事業"
+    },
+    "result": {
+      "en": "ICT Division, Government of Bangladesh",
+      "ja": "バングラデシュ政府 ICT Division"
+    },
+    "role": {
+      "en": "Robotics Developer",
+      "ja": "ロボティクス開発担当"
+    }
+  }
+]

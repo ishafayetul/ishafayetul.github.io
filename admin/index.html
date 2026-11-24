@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Portfolio Admin</title>
+  <link rel="stylesheet" href="/editor.css">
+  <script type="module" src="/editor.mjs"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="identity"><span class="mark" aria-hidden="true">◎</span><div><strong>Portfolio Admin</strong><small id="folder-status">No folder connected</small></div></div>
+    <div class="actions">
+      <button type="button" id="connect">Open portfolio folder</button>
+      <button type="button" id="save" class="primary" hidden>Save changes</button>
+    </div>
+  </header>
+  <div class="layout">
+    <aside id="sidebar" hidden><nav id="sections" aria-label="Content sections"></nav></aside>
+    <main id="main">
+      <p id="status" class="status" role="status" hidden></p>
+      <div id="workspace">
+        <section class="welcome">
+          <h1>Edit your portfolio locally</h1>
+          <p>Choose the root folder of this portfolio. The editor saves directly to your checkout so you can review the changes in Git.</p>
+          <p class="muted">Open this editor in desktop Chrome or Edge to grant folder access.</p>
+        </section>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

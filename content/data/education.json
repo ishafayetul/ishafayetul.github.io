@@ -1,0 +1,38 @@
+[
+  {
+    "title": {
+      "en": "M.Sc. in Computer Science and Engineering",
+      "ja": "コンピュータ科学・工学 修士課程"
+    },
+    "organization": {
+      "en": "United International University",
+      "ja": "United International University"
+    },
+    "period": {
+      "en": "2026–Present",
+      "ja": "2026年〜現在"
+    },
+    "description": {
+      "en": "Specialization in Artificial Intelligence.",
+      "ja": "人工知能（AI）専攻。"
+    }
+  },
+  {
+    "title": {
+      "en": "B.Sc. in Computer Science and Engineering",
+      "ja": "コンピュータ科学・工学 学士"
+    },
+    "organization": {
+      "en": "Military Institute of Science and Technology",
+      "ja": "Military Institute of Science and Technology"
+    },
+    "period": {
+      "en": "Feb 2018–Feb 2023",
+      "ja": "2018年2月〜2023年2月"
+    },
+    "description": {
+      "en": "Thesis: Comparative Analysis of Sea-Level Prediction in Coastal Regions of Bangladesh Using Machine Learning, Deep Learning, and Time Series Analysis.",
+      "ja": "卒業論文：機械学習、深層学習、時系列分析を用いたバングラデシュ沿岸地域の海面水位予測の比較分析。"
+    }
+  }
+]

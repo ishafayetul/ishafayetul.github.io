@@ -1,0 +1,47 @@
+[
+  {
+    "title": "DIP Foundation / DIP Tech Lab",
+    "courses": [
+      {
+        "en": "ROS 2 for Beginners",
+        "ja": "初学者向けROS 2"
+      },
+      {
+        "en": "Robotics and Drones for Young Learners",
+        "ja": "若年層向けロボティクス・ドローン"
+      },
+      {
+        "en": "Robotics Engineering Certification",
+        "ja": "ロボティクス工学認定講座"
+      }
+    ]
+  },
+  {
+    "title": "The UAcademy",
+    "courses": [
+      {
+        "en": "Robotics and Arduino Programming",
+        "ja": "ロボティクスとArduinoプログラミング"
+      },
+      {
+        "en": "Robotics for Beginners",
+        "ja": "初学者向けロボティクス"
+      },
+      {
+        "en": "ROS 2 Autonomous Mobile Robot",
+        "ja": "ROS 2による自律移動ロボット"
+      }
+    ],
+    "url": "https://theuacademy.com/courses/instructor/shafayetul-islam-12"
+  },
+  {
+    "title": "Apar’s Classroom",
+    "courses": [
+      {
+        "en": "Robotics: A Journey with Arduino",
+        "ja": "Arduinoで学ぶロボティクス"
+      }
+    ],
+    "url": "https://aparsclassroom.com/shop/robotics/"
+  }
+]

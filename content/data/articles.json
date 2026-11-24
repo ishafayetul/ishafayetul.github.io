@@ -1,0 +1,4 @@
+[
+  {"slug":"ros-navigation-validation","title":{"en":"What to record when testing ROS navigation","ja":"ROSナビゲーション試験で記録する項目"},"summary":{"en":"A repeatable way to log, diagnose and compare navigation runs in simulation and on hardware.","ja":"シミュレーションと実機で走行試験を記録・診断・比較するための手順。"},"tags":["ROS","Navigation","Testing"],"project":"industrial-agv"},
+  {"slug":"landing-zone-clearance","title":{"en":"Using hazard clearance to rank landing sites","ja":"危険領域からの離隔距離で着陸候補を評価する"},"summary":{"en":"A short technical note on distance transforms, candidate selection and the limits of image-space distances.","ja":"距離変換、着陸候補の選定、画像座標上の距離の限界に関する技術ノート。"},"tags":["UAV systems","Perception"],"project":"uav-safe-landing"}
+]
