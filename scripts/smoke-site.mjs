@@ -40,7 +40,7 @@ for (const locale of ["en", "ja"]) {
     assert.equal(normalize(alternates.ja), normalize(new URL(expectedBase + japanesePath, canonical).href), `Missing Japanese hreflang: ${target}`);
     assert.equal(alternates["x-default"], alternates.en, `Missing default hreflang: ${target}`);
     for (const [, link] of html.matchAll(/(?:src|href)="(\/[^"]+)"/g)) {
-      if (!/\/(?:images|documents)\//.test(link)) continue;
+      if (!/\/(?:images|documents|videos)\//.test(link)) continue;
       assert(link.startsWith(mount + "/"), `Asset escaped the site prefix: ${link}`);
       assets.add(link.slice(mount.length));
     }
@@ -50,7 +50,7 @@ for (const locale of ["en", "ja"]) {
 for (const asset of assets) {
   const response = await fetch(local(asset), { method: "HEAD" });
   assert.equal(response.status, 200, asset);
-  assert(/^(image\/|application\/pdf)/.test(response.headers.get("content-type") ?? ""), `Unexpected asset type: ${asset}`);
+  assert(/^(image\/|video\/|application\/pdf)/.test(response.headers.get("content-type") ?? ""), `Unexpected asset type: ${asset}`);
 }
 
 for (const path of ["/projects/missing-case", "/ja/blog/missing-note", "/unmapped/path"]) {

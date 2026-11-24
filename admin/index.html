@@ -10,24 +10,38 @@
 </head>
 <body>
   <header class="topbar">
-    <div class="identity"><span class="mark" aria-hidden="true">◎</span><div><strong>Portfolio Admin</strong><small id="folder-status">No folder connected</small></div></div>
+    <div class="identity"><span class="mark" aria-hidden="true">P</span><div><strong>Portfolio Admin</strong><small id="folder-status">No folder connected</small></div></div>
     <div class="actions">
-      <button type="button" id="connect">Open portfolio folder</button>
+      <details id="workspace-actions" class="workspace-actions" hidden>
+        <summary>Workspace</summary>
+        <div class="action-menu">
+          <div id="folder-action"></div>
+          <button type="button" id="versions">Version history</button>
+          <button type="button" id="push">Push &amp; deploy</button>
+        </div>
+      </details>
+      <button type="button" id="preview" hidden>Preview site</button>
       <button type="button" id="save" class="primary" hidden>Save changes</button>
-      <button type="button" id="preview" hidden>Preview</button>
-      <button type="button" id="versions" hidden>Versions</button>
-      <button type="button" id="push" hidden>Push &amp; deploy</button>
     </div>
   </header>
   <div class="layout">
-    <aside id="sidebar" hidden><nav id="sections" aria-label="Content sections"></nav></aside>
+    <aside id="sidebar" hidden>
+      <button type="button" id="toggle-sections" aria-expanded="false" aria-controls="section-browser">Browse settings</button>
+      <div id="section-browser">
+        <label for="find-section" class="settings-label">Find a setting</label>
+        <input type="search" id="find-section" placeholder="e.g. layout, video, labels" autocomplete="off">
+        <p id="section-matches" role="status" hidden></p>
+        <nav id="sections" aria-label="Portfolio settings"></nav>
+      </div>
+    </aside>
     <main id="main">
       <p id="status" class="status" role="status" hidden></p>
       <div id="workspace">
         <section class="welcome">
-          <h1>Edit your portfolio locally</h1>
-          <p>Choose the root folder of this portfolio. The editor saves directly to your checkout so you can review the changes in Git.</p>
-          <p class="muted">Open this editor in desktop Chrome or Edge to grant folder access.</p>
+          <h1>Open your portfolio</h1>
+          <p>Connect the portfolio checkout to edit content, manage media, and preview the English and Japanese pages.</p>
+          <button type="button" id="connect" class="primary">Open portfolio folder</button>
+          <p class="muted">Folder access requires desktop Chrome or Edge.</p>
         </section>
       </div>
     </main>

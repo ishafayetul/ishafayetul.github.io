@@ -18,15 +18,17 @@ Open [http://localhost:3000](http://localhost:3000). English uses unprefixed URL
 
 Run `npm run admin` and open [the admin editor](http://127.0.0.1:4174/) in desktop Chrome or Edge. Choose **Open portfolio folder**, select this repository's root, and grant local file access. The editor uses the browser's folder permission to read and write source files in the checkout. Run the editor from this checkout so its local Git controls can identify the selected folder.
 
-Use **Projects** and **Technical Blogs** for bilingual metadata and Markdown. **Page layout** manages section order across both languages. Drag the rows or use **Up** and **Down**. Record lists, image galleries and Markdown headings also have ordering controls.
+Use **Find a setting** in the sidebar to locate a section. **Projects** and **Technical Blogs** have separate panels for metadata, media, bilingual Markdown, and advanced JSON. **Page layout** manages section order across both languages. Drag the rows or use **Up** and **Down**. Record lists, image galleries and Markdown headings also have ordering controls.
 
-- **Save changes** writes files to your checkout and records a local Git version. The editor uses Gitleaks from your PATH or `PORTFOLIO_GITLEAKS`. The original workspace has a verified local scanner copy in the ignored `.portfolio-tools` directory.
-- **Preview** saves pending edits and builds a local copy on a separate localhost address. Use it to review the changes before publishing.
-- **Delete record** removes a selected item from an editable record list. Project and article deletions also remove their local Markdown pages. Project deletion clears related links and keeps images in the library.
-- **Versions** lists saved Git content snapshots, including pushed versions. Restoring creates a new local commit and preserves prior edits in history. Push the restoration if it should go live.
-- **Push & deploy** shows the pending versions and destination for confirmation, validates the content, scans the outgoing changes, pushes to `main`, and starts the GitHub Pages workflow. It uses your existing GitHub CLI login. The button targets `ishafayetul/ishafayetul.github.io`.
+- **Save changes** writes files to your checkout and records a local Git version. The editor uses Gitleaks from your PATH or `PORTFOLIO_GITLEAKS`. This checkout also has a verified local scanner copy in the ignored `.portfolio-tools` directory.
+- **Preview site** saves pending edits and builds a local copy on a separate localhost address. Use it to review the changes before publishing.
+- **Record actions → Delete record** removes the selected item. Project and article deletions also remove their local Markdown pages. Project deletion clears related links and keeps images in the library.
+- **Workspace → Version history** lists saved Git content snapshots, including pushed versions. Restoring creates a new local commit and preserves prior edits in history. Push the restoration if it should go live.
+- **Workspace → Push & deploy** shows your local commits and any project files pending a commit. Confirm to scan and commit the reviewed files, run the deploy checks, push to `main`, and start the GitHub Pages workflow. The button uses your GitHub CLI login and targets `ishafayetul/ishafayetul.github.io`. You can also commit changes in Git before opening the review.
 
 Use the image library to import publication-approved assets and copy project-relative paths for profile fields or Markdown.
+
+In **Outreach**, **Achievements**, and **Technical Blogs**, use **Media** to attach an image or an MP4/WebM video up to 20 MB. Supply English and Japanese alt text for images. Videos are saved as supplied, so use publication-ready clips with captions for spoken content.
 
 The editor runs on the local loopback address and is outside the public build. Its folder permission is scoped to the folder you choose. [Chrome folder access documentation](https://developer.chrome.com/docs/capabilities/web-apis/file-system-access).
 

@@ -6,7 +6,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import { markdownSections, moveItem } from "../admin/reorder.mjs";
-import { portfolioGit } from "./admin-git.mjs";
+import { portfolioGit, repository } from "./admin-git.mjs";
 
 test("ordering moves an item without changing the others and ignores headings in code", () => {
   const items = ["intro", "projects", "contact"];
@@ -39,10 +39,14 @@ test("versions capture only selected files and a restore preserves the edits it 
   await writeFile(scanner, "#!/bin/sh\nexit 0\n", { mode: 0o700 });
   const admin = portfolioGit(fixture, scanner);
   await writeFile(content, '{"name":"Saved"}\n');
+  const video = "public/videos/test-clip.webm";
+  await mkdir(join(fixture, "public/videos"), { recursive: true });
+  await writeFile(join(fixture, video), "Test video");
   await writeFile(join(fixture, "notes.txt"), "User's unrelated work");
-  assert.equal(await admin.checkpoint([path]), true);
+  assert.equal(await admin.checkpoint([path, video]), true);
   const saved = git("rev-parse", "HEAD");
   assert.equal(git("show", "HEAD:notes.txt"), "Original notes");
+  assert.equal(git("show", `HEAD:${video}`), "Test video");
 
   git("init", "--bare", "test-origin.git");
   git("push", "test-origin.git", "main");
@@ -51,6 +55,7 @@ test("versions capture only selected files and a restore preserves the edits it 
   assert.equal((await readFile(content, "utf8")).trim(), '{"name":"Original"}');
   assert.equal(git("show", "HEAD~1:" + path), '{"name":"Edited after push"}');
   assert.equal(git("rev-parse", "HEAD~2"), saved);
+  await assert.rejects(readFile(join(fixture, video)), { code: "ENOENT" });
   assert.equal(await readFile(join(fixture, "notes.txt"), "utf8"), "User's unrelated work");
   assert.equal(git("--git-dir=test-origin.git", "rev-parse", "main"), saved);
   await assert.rejects(admin.checkpoint(["../notes.txt"]), /Only workspace content/);
@@ -75,6 +80,108 @@ test("a failed scan leaves edits on disk and clears only the attempted checkpoin
   await assert.rejects(portfolioGit(fixture, scanner).checkpoint([path]), /Gitleaks/);
   assert.equal(git("diff", "--cached", "--name-only"), "");
   assert.equal(await readFile(join(fixture, path), "utf8"), '{"edit":true}\n');
+});
+
+test("deployment commits reviewed code and content before pushing and preserves the commit if checks fail", async t => {
+  const fixture = await mkdtemp(join(tmpdir(), "portfolio-deploy-"));
+  t.after(() => rm(fixture, { recursive: true, force: true }));
+  const root = join(fixture, "checkout");
+  const remote = join(fixture, "origin.git");
+  const bin = join(fixture, "bin");
+  const trace = join(fixture, "calls");
+  const stopScan = join(fixture, "stop-scan");
+  const stopBuild = join(fixture, "stop-build");
+  const realGit = execFileSync("sh", ["-c", "command -v git"], { encoding: "utf8" }).trim();
+  const git = (...args) => execFileSync(realGit, args, { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
+  const save = (path, value) => writeFile(join(root, path), value + "\n");
+  const route = "src/app/(english)/[[...path]]/page.tsx";
+  const data = "content/data/profile.json";
+  const note = "docs/RELEASE.md";
+  await mkdir(join(root, "src/app/(english)/[[...path]]"), { recursive: true });
+  await mkdir(join(root, "content/data"), { recursive: true });
+  await mkdir(join(root, "docs"), { recursive: true });
+  await mkdir(bin);
+  await save(route, "export const fixture = 1;");
+  await save(data, "{}");
+  git("init", "--initial-branch=main");
+  git("config", "user.name", "Portfolio Test");
+  git("config", "user.email", "portfolio@example.test");
+  git("--literal-pathspecs", "add", "--", route, data);
+  git("commit", "-m", "Initial portfolio");
+  const original = git("rev-parse", "HEAD");
+  git("init", "--bare", remote);
+  git("push", remote, "main");
+  git("remote", "add", "origin", `https://github.com/${repository}.git`);
+  git("update-ref", "refs/remotes/origin/main", original);
+
+  const stub = (name, script) => writeFile(join(bin, name), `#!/usr/bin/env node\n${script}\n`, { mode: 0o700 });
+  await stub("git", `
+const { spawnSync } = require('node:child_process');
+let args = process.argv.slice(2);
+if (args[0] === '-c' && args.includes('fetch')) args = ['fetch', ${JSON.stringify(remote)}, 'refs/heads/main:refs/remotes/origin/main'];
+else if (args[0] === '-c' && args.includes('push')) args = ['push', ${JSON.stringify(remote)}, args.at(-1)];
+const child = spawnSync(${JSON.stringify(realGit)}, args, { stdio: 'inherit' });
+process.exit(child.status ?? 1);
+`);
+  await stub("gh", `
+if (process.argv[2] === 'repo') console.log(JSON.stringify({ nameWithOwner: ${JSON.stringify(repository)}, visibility: 'PUBLIC', defaultBranchRef: { name: 'main' }, viewerPermission: 'WRITE' }));
+else if (process.argv[2] === 'workflow') require('node:fs').appendFileSync(${JSON.stringify(trace)}, 'workflow\\n');
+else process.exit(1);
+`);
+  await stub("npm", `
+const fs = require('node:fs');
+fs.appendFileSync(${JSON.stringify(trace)}, process.argv[3] + '\\n');
+if (process.argv[3] === 'build' && fs.existsSync(${JSON.stringify(stopBuild)})) process.exit(1);
+`);
+  await stub("scanner", `
+const fs = require('node:fs');
+fs.appendFileSync(${JSON.stringify(trace)}, process.argv.includes('--staged') ? 'staged scan\\n' : 'outgoing scan\\n');
+if (fs.existsSync(${JSON.stringify(stopScan)})) process.exit(1);
+`);
+  const previousPath = process.env.PATH;
+  process.env.PATH = `${bin}:${previousPath}`;
+  t.after(() => { process.env.PATH = previousPath; });
+  const admin = portfolioGit(root, join(bin, "scanner"));
+
+  await save(route, "export const fixture = 2;");
+  await save(data, '{"name":"Test"}');
+  await save(note, "# Test release");
+  assert.deepEqual((await admin.state()).paths, [data]);
+  await assert.rejects(admin.checkpoint([route]), /Only workspace content/);
+  const reviewed = await admin.deploymentReview();
+  assert.deepEqual(reviewed.paths, [data, note, route]);
+  await save(route, "export const fixture = 3;");
+  await assert.rejects(admin.push(reviewed.proof), /changed/);
+  assert.equal(git("rev-parse", "HEAD"), original);
+
+  await save(".env.local", "EXAMPLE=fictional");
+  await assert.rejects(admin.deploymentReview(), /outside the supported portfolio files/);
+  await rm(join(root, ".env.local"));
+  git("add", "--", data);
+  await assert.rejects(admin.deploymentReview(), /already contains staged changes/);
+  assert.equal(git("diff", "--cached", "--name-only"), data);
+  git("restore", "--staged", "--", data);
+
+  await writeFile(stopScan, "");
+  await assert.rejects(admin.push((await admin.deploymentReview()).proof), /Gitleaks/);
+  assert.equal(git("rev-parse", "HEAD"), original);
+  assert.equal(git("diff", "--cached", "--name-only"), "");
+  assert.deepEqual((await admin.deploymentReview()).paths, [data, note, route]);
+  await rm(stopScan);
+
+  await writeFile(stopBuild, "");
+  await assert.rejects(admin.push((await admin.deploymentReview()).proof), /committed locally.*npm run build failed/);
+  const release = git("rev-parse", "HEAD");
+  assert.notEqual(release, original);
+  assert.equal(git("--git-dir=" + remote, "rev-parse", "main"), original);
+  assert.deepEqual(git("diff", "--name-only", original, release).split("\n"), [data, note, route]);
+  await rm(stopBuild);
+
+  assert.match((await admin.push((await admin.deploymentReview()).proof)).message, /Pages workflow has started/);
+  assert.equal(git("rev-parse", "HEAD"), release);
+  assert.equal(git("--git-dir=" + remote, "rev-parse", "main"), release);
+  assert.deepEqual((await readFile(trace, "utf8")).trim().split("\n"), ["staged scan", "staged scan", "outgoing scan",
+    "content:validate", "lint", "test", "build", "outgoing scan", "content:validate", "lint", "test", "build", "workflow"]);
 });
 
 test("deleting a project is versioned with its pages and references, and keeps media", async t => {

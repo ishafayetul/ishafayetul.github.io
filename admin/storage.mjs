@@ -1,5 +1,6 @@
 export const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-const assetPath = /^\/images\/(?:[a-z0-9-]+\/)*[a-z0-9-]+\.(webp|png|jpe?g|gif|avif|svg)$/;
+export const imagePath = /^\/images\/(?:[a-z0-9-]+\/)*[a-z0-9-]+\.(webp|png|jpe?g|gif|avif|svg)$/;
+export const videoPath = /^\/videos\/[a-z0-9-]+\.(mp4|webm)$/;
 
 async function fileAt(root, path, create = false) {
   const parts = path.split("/");
@@ -35,7 +36,7 @@ export async function openWorkspace(root) {
 }
 
 export async function localImage(root, path) {
-  if (!assetPath.test(path ?? "")) return null;
+  if (!imagePath.test(path ?? "")) return null;
   return getFile(root, "public" + path);
 }
 
@@ -43,6 +44,17 @@ export function assetName(filename, slug = "media") {
   if (!slugPattern.test(slug)) throw new Error("Enter a valid slug before adding images.");
   const stem = filename.replace(/\.[^.]+$/, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 55).replace(/-$/, "");
   return `/images/projects/${slug}-${stem || "image"}-${crypto.randomUUID().slice(0, 8)}.webp`;
+}
+
+export async function prepareVideo(file) {
+  const format = file.type === "video/mp4" ? "mp4" : file.type === "video/webm" ? "webm" : null;
+  const header = new Uint8Array(await file.slice(0, 8).arrayBuffer());
+  const mp4 = String.fromCharCode(...header.slice(4)) === "ftyp";
+  const webm = header[0] === 0x1a && header[1] === 0x45 && header[2] === 0xdf && header[3] === 0xa3;
+  if (!format || !(format === "mp4" ? mp4 : webm) || file.size > 20 * 1024 * 1024) {
+    throw new Error("Choose a valid MP4 or WebM video up to 20 MB.");
+  }
+  return `/videos/${crypto.randomUUID()}.${format}`;
 }
 
 export async function optimizeImage(file) {
@@ -74,6 +86,10 @@ export async function saveChanges(root, changes) {
   for (const change of changes) await check(root, change);
   for (const change of changes) {
     await check(root, change);
+    if (change.before === null && change.path.startsWith("public/") && videoPath.test(change.path.slice("public".length))) {
+      const directory = await root.getDirectoryHandle("public");
+      await directory.getDirectoryHandle("videos", { create: true });
+    }
     const handle = await fileAt(root, change.path, change.before === null);
     const stream = await handle.createWritable({ mode: "exclusive" });
     try {

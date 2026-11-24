@@ -1,15 +1,23 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { assetName, openWorkspace, readText, saveChanges } from "../admin/storage.mjs";
+import { assetName, openWorkspace, prepareVideo, readText, saveChanges, videoPath } from "../admin/storage.mjs";
 
 function workspace() {
   const files = new Map([
     ["package.json", '{"name":"shafayetul-islam-portfolio"}'],
     ["content/data/projects.json", "[]"]
   ]);
+  let videosExist = false;
   function directory(prefix = "") {
     return {
-      getDirectoryHandle: async name => directory(prefix + name + "/"),
+      getDirectoryHandle: async (name, { create } = {}) => {
+        const path = prefix + name + "/";
+        if (path === "public/videos/") {
+          videosExist ||= Boolean(create);
+          if (!videosExist) throw new DOMException("Missing", "NotFoundError");
+        }
+        return directory(path);
+      },
       getFileHandle: async (name, { create } = {}) => {
         const path = prefix + name;
         if (!create && !files.has(path)) throw new DOMException("Missing", "NotFoundError");
@@ -54,4 +62,15 @@ test("conflicts are detected before creating any of the files and traversal is r
   assert.equal(files.get("content/data/projects.json"), "[]");
   await assert.rejects(readText(root, "content/../package.json"), /Invalid workspace path/);
   assert.throws(() => assetName("photo.png", "../bad"), /valid slug/);
+});
+
+test("video uploads create their directory and reject mismatched containers", async () => {
+  const { root, files } = workspace();
+  const video = new Blob([new Uint8Array([0, 0, 0, 24]), "ftyp"], { type: "video/mp4" });
+  const src = await prepareVideo(video);
+  assert.match(src, videoPath);
+  await saveChanges(root, [{ path: "public" + src, before: null, value: video }]);
+  assert.equal(files.get("public" + src), video);
+  await assert.rejects(prepareVideo(new Blob(["invalid"], { type: "video/mp4" })), /valid MP4 or WebM/);
+  await assert.rejects(prepareVideo(new Blob([video], { type: "video/webm" })), /valid MP4 or WebM/);
 });

@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
+import { imagePath, videoPath } from "../admin/storage.mjs";
 
 const read = name => JSON.parse(readFileSync(new URL(name, import.meta.url), "utf8"));
 const content = name => read(`../content/data/${name}.json`);
@@ -34,9 +35,8 @@ function url(value, label) {
   assert(parsed?.protocol === "https:" && !parsed.username && !parsed.password, `${label} must use HTTPS`);
 }
 
-function localFile(path, label) {
-  assert(typeof path === "string" && /^\/(?:images|documents)\/(?:[a-z0-9-]+\/)*[a-z0-9-]+\.[a-z0-9]+$/.test(path),
-    `${label} must refer to a safe local file under public/images or public/documents`);
+function localFile(path, label, pattern = /^\/(?:images|documents)\/(?:[a-z0-9-]+\/)*[a-z0-9-]+\.[a-z0-9]+$/) {
+  assert(typeof path === "string" && pattern.test(path), `${label} must refer to a safe local public file`);
   assert(existsSync(new URL(`../public${path}`, import.meta.url)), `${label} file missing: ${path}`);
 }
 
@@ -45,6 +45,14 @@ function image(asset, label) {
   translated(asset?.alt, `${label} alt`);
   if (asset.preview) localFile(asset.preview, `${label} preview`);
   if (asset.caption) translated(asset.caption, `${label} caption`);
+}
+
+function recordMedia(record, label) {
+  if (record.image !== undefined) {
+    assert(typeof record.image?.src === "string" && imagePath.test(record.image.src), `${label} needs a local image`);
+    image(record.image, `${label} image`);
+  }
+  if (record.videoSrc !== undefined) localFile(record.videoSrc, `${label} video`, videoPath);
 }
 
 function unique(records, key) {
@@ -143,6 +151,7 @@ for (const article of articles) {
   translated(article.summary, `${article.slug} summary`);
   list(article.tags, `${article.slug} tags`);
   if (article.project) references([article.project], article.slug);
+  recordMedia(article, article.slug);
   markdowns("blog", article.slug, true);
 }
 
@@ -172,13 +181,17 @@ for (const item of content("achievements")) {
   for (const key of ["title", "result", "role"]) translated(item[key], `${item.id} ${key}`);
   if (item.url) url(item.url, item.id);
   if (item.project) references([item.project], item.id);
+  recordMedia(item, item.id);
 }
 for (const item of content("teaching")) {
   text(item.title, "teaching organization");
   for (const course of item.courses) translated(course, item.title);
   if (item.url) url(item.url, item.title);
 }
-for (const event of content("outreach")) if (event.url) url(event.url, "outreach event");
+for (const event of content("outreach")) {
+  if (event.url) url(event.url, "outreach event");
+  recordMedia(event, "outreach event");
+}
 for (const [name, fields] of [["education", ["title", "organization", "period", "description"]], ["activities", ["title", "description"]], ["outreach", ["title", "organization"]], ["certifications", ["title", "value"]], ["skills", ["label"]]]) {
   for (const item of content(name)) for (const key of fields) translated(item[key], `${name} ${key}`);
 }

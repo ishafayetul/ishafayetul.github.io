@@ -255,6 +255,7 @@ a, button { transition: background-color 150ms ease, color 150ms ease, border-co
 .video-panel button:hover { background: var(--surface-raised); }
 .video-panel button:focus-visible { outline-offset: -4px; }
 .video-panel iframe, .local-video { width: 100%; aspect-ratio: 16/9; border: 0; display: block; }
+.article-media { max-width: 75ch; margin-bottom: 2rem; }
 .metric-grid > div { background: var(--surface); padding: .7rem; border: 1px solid var(--line); border-radius: 7px; }
 .metric-grid strong { color: var(--accent); font-size: 1.6rem; }
 .metric-grid p { color: var(--muted); font-size: .85rem; }

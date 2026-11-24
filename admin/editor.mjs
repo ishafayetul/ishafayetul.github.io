@@ -1,15 +1,33 @@
-import { assetName, localImage, openWorkspace, optimizeImage, readText, saveChanges, slugPattern } from "./storage.mjs";
+import { assetName, getFile, imagePath, localImage, openWorkspace, optimizeImage, prepareVideo, readText, saveChanges, slugPattern, videoPath } from "./storage.mjs";
 
 import { markdownSections, moveItem } from "./reorder.mjs";
 
 const jsonFile = name => `content/data/${name}.json`;
-const sections = new Map([
-  ["layout", "Page layout"], ["projects", "Projects"], ["articles", "Technical Blogs"], ["profile", "Profile"],
-  ["experience", "Experience"], ["education", "Education"], ["skills", "Skills"],
-  ["publications", "Publications"], ["achievements", "Achievements"], ["teaching", "Teaching"],
-  ["certifications", "Language qualifications"], ["outreach", "Outreach"], ["activities", "Activities"],
-  ["interface-en", "English interface"], ["interface-ja", "Japanese interface"], ["media", "Image library"]
-]);
+const sectionGroups = {
+  Portfolio: [
+    ["projects", "Projects", "Case studies, categories, technical details, images and video links."],
+    ["articles", "Technical Blogs", "Bilingual articles, tags, Markdown, images and video."],
+    ["achievements", "Achievements", "Competition results, awards, grants, images and video."],
+    ["outreach", "Outreach", "Workshops and events shown on the Teaching page, with images and video."],
+    ["teaching", "Teaching", "Courses and teaching organizations."],
+    ["publications", "Publications", "Papers, authors, citations and related projects."]
+  ],
+  Career: [
+    ["profile", "Profile", "Name, location, contact links, portrait, highlights and résumé path."],
+    ["experience", "Experience", "Roles, employers, dates and related work."],
+    ["education", "Education", "Degrees, institutions and dates."],
+    ["skills", "Skills", "Technical skill groups and technologies."],
+    ["certifications", "Language qualifications", "Language certificates and proficiency."],
+    ["activities", "Activities", "Clubs, leadership and other activities."]
+  ],
+  "Site settings": [
+    ["layout", "Page layout", "Reorder sections and groups across both languages."],
+    ["interface-en", "English interface", "English navigation labels, buttons and page descriptions."],
+    ["interface-ja", "Japanese interface", "Japanese navigation labels, buttons and page descriptions."],
+    ["media", "Image library", "Upload reusable images and copy their local paths."]
+  ]
+};
+const sections = new Map(Object.values(sectionGroups).flat().map(([id, title, description]) => [id, { title, description }]));
 const languages = { en: "English", ja: "Japanese" };
 const categories = { mobile: "Autonomous mobile robots", uav: "UAVs and drones", manipulation: "Robotic manipulation", ai: "Computer vision and AI", simulation: "Simulation", embedded: "Embedded systems", research: "Research", competition: "Competitive robotics" };
 const statuses = { "": "Unspecified", completed: "Completed", development: "In development", research: "Research", prototype: "Prototype", simulation: "Simulation", archived: "Archived" };
@@ -21,6 +39,9 @@ const previewButton = document.querySelector("#preview");
 const pushButton = document.querySelector("#push");
 const versionsButton = document.querySelector("#versions");
 const dialog = document.querySelector("#review");
+const sectionSearch = document.querySelector("#find-section");
+const sectionToggle = document.querySelector("#toggle-sections");
+const workspaceActions = document.querySelector("#workspace-actions");
 const pendingVersions = new Set();
 
 let root;
@@ -35,8 +56,11 @@ const bilingual = () => ({ en: "", ja: "" });
 const emptyBodies = () => ({ en: { before: null, value: "" }, ja: { before: null, value: "" } });
 const kind = () => current.section === "projects" ? "projects" : "blog";
 const special = () => ["projects", "articles"].includes(current.section);
+const hasRecordMedia = section => ["outreach", "achievements", "articles"].includes(section);
+const mediaKeys = ["image", "videoSrc"];
 const sectionFile = section => section.startsWith("interface-") ? `messages/${section.slice(-2)}.json` : jsonFile(section === "layout" ? "section-order" : section);
-const display = record => record?.title?.en || record?.title || record?.label?.en || record?.name || record?.id || record?.slug;
+const display = record => [record?.title?.en, record?.title?.ja, record?.title, record?.label?.en, record?.label?.ja,
+  record?.name, record?.id, record?.slug].find(value => typeof value === "string" && value.trim());
 const textValue = value => typeof value === "string" ? value : "";
 const json = value => JSON.stringify(value, null, 2) + "\n";
 
@@ -63,7 +87,8 @@ function status(message = "", failed = false) {
 
 function sync() {
   saveButton.hidden = !root;
-  saveButton.disabled = (!dirty && !pendingVersions.size) || busy;
+  workspaceActions.hidden = !root;
+  saveButton.disabled = (!dirty && !pendingVersions.size && !current?.jsonDraft) || busy;
   for (const button of [previewButton, pushButton, versionsButton]) {
     button.hidden = !root;
     button.disabled = busy;
@@ -80,7 +105,7 @@ function edited() {
 }
 
 function canLeave() {
-  return !dirty || window.confirm("Discard unsaved changes in the editor?");
+  return (!dirty && !current?.jsonDraft) || window.confirm("Discard unsaved changes in the editor?");
 }
 
 function input(label, value, change, { multiline = false, type = "text", className, disabled = false } = {}) {
@@ -142,7 +167,8 @@ async function loadSection(section, index = 0) {
   const before = path && await readText(root, path);
   if (path && before === null && section !== "layout") throw new Error(`Missing ${path}.`);
   const data = before ? JSON.parse(before) : section === "layout" ? {} : null;
-  current = { section, path, before, data, uploads: new Map(), library: [] };
+  const panel = current?.section === section ? current.panel : undefined;
+  current = { section, path, before, data, panel, uploads: new Map(), library: [] };
   if (section === "media") {
     for (const folder of ["profile", "projects", "achievements", "teaching"]) {
       const images = await root.getDirectoryHandle("public").then(dir => dir.getDirectoryHandle("images"));
@@ -178,18 +204,47 @@ async function run(action) {
 
 function sectionNavigation() {
   const nav = document.querySelector("#sections");
+  const matches = document.querySelector("#section-matches");
+  const query = sectionSearch.value.trim().toLocaleLowerCase();
+  let count = 0;
   nav.replaceChildren();
-  for (const [id, label] of sections) {
-    const item = button(label, () => {
-      if (current.section !== id && canLeave()) run(async () => {
-        await loadSection(id);
-        status();
+  for (const [group, entries] of Object.entries(sectionGroups)) {
+    const items = [];
+    for (const [id, title, description] of entries) {
+      if (!`${group} ${title} ${description}`.toLocaleLowerCase().includes(query)) continue;
+      const item = button(title, async () => {
+        if (current.section !== id) {
+          if (!canLeave()) return;
+          await run(async () => {
+            await loadSection(id);
+            status();
+          });
+          if (current.section !== id) return;
+        }
+        sectionSearch.value = "";
+        sectionToggle.setAttribute("aria-expanded", "false");
+        sectionNavigation();
+        workspace.querySelector("h1").focus();
       });
-    });
-    if (current.section === id) item.setAttribute("aria-current", "page");
-    nav.append(item);
+      if (current.section === id) item.setAttribute("aria-current", "page");
+      items.push(item);
+    }
+    if (items.length) nav.append(el("div", { className: "nav-group" }, el("h2", { text: group }), ...items));
+    count += items.length;
   }
+  matches.hidden = !query;
+  matches.textContent = count ? `${count} ${count === 1 ? "setting" : "settings"} found` : "No matching settings";
 }
+
+sectionSearch.addEventListener("input", sectionNavigation);
+sectionSearch.addEventListener("keydown", event => {
+  if (event.key === "Enter") document.querySelector("#sections button")?.click();
+});
+sectionToggle.addEventListener("click", () => {
+  const open = sectionToggle.getAttribute("aria-expanded") === "true";
+  sectionToggle.setAttribute("aria-expanded", String(!open));
+  if (!open) sectionSearch.focus();
+});
 
 function update(record, key, value) {
   record[key] = value;
@@ -197,9 +252,14 @@ function update(record, key, value) {
 }
 
 function translated(label, value, change, multiline = false) {
-  return fieldset(label, el("div", { className: "grid" }, ...Object.entries(languages).map(([locale, name]) =>
-    input(`${label} · ${name}`, value?.[locale], text => change(locale, text), { multiline })
-  )));
+  const group = fieldset(label, el("div", { className: "grid" }, ...Object.entries(languages).map(([locale, name]) => {
+    const field = input(`${label} · ${name}`, value?.[locale], text => change(locale, text), { multiline });
+    field.querySelector("input, textarea").setAttribute("aria-label", `${label} · ${name}`);
+    field.querySelector("span").textContent = name;
+    return field;
+  })));
+  group.className = "translation";
+  return group;
 }
 
 function pairField(label, record, key, multiline = false) {
@@ -231,21 +291,21 @@ function assetCard(path, details, onRemove) {
       } catch { status("Select and copy the path shown on the card.", true); }
     }));
   }
-  if (onRemove) card.append(button("Remove from project", onRemove));
+  if (onRemove) card.append(button("Remove image", onRemove));
   return card;
 }
 
-function uploadField(onUpload, multiple = true) {
+function uploadField(onUpload, { multiple = true, video = false } = {}) {
   const field = el("input");
   field.type = "file";
-  field.accept = "image/png,image/jpeg,image/webp,image/avif";
+  field.accept = video ? "video/mp4,video/webm" : "image/png,image/jpeg,image/webp,image/avif";
   field.multiple = multiple;
   field.addEventListener("change", () => {
     const files = Array.from(field.files);
     if (files.length) run(() => onUpload(files));
     field.value = "";
   });
-  return el("label", {}, el("span", { text: multiple ? "Choose images" : "Choose image" }), field);
+  return el("label", {}, el("span", { text: video ? "Choose video" : multiple ? "Choose images" : "Choose image" }), field);
 }
 
 async function prepareUploads(files, slug) {
@@ -321,7 +381,7 @@ function images(record) {
       return card;
     }));
     const order = key === "thumbnail" ? null : imageOrder(items, cards);
-    blocks.push(fieldset(label,
+    const block = disclosure(`${label} (${items.length})`,
       uploadField(async files => {
         const uploads = await prepareUploads(files, record.slug);
         const added = uploads.map(([src, blob]) => {
@@ -332,11 +392,55 @@ function images(record) {
         else record[key] = [...items, ...added];
         edited();
         render();
-      }, key !== "thumbnail"),
+      }, { multiple: key !== "thumbnail" }),
       ...(order ? [order] : []), cards
-    ));
+    );
+    block.open = current.mediaGroups?.[key] ?? key === "thumbnail";
+    block.addEventListener("toggle", () => {
+      if (block.isConnected) (current.mediaGroups ??= {})[key] = block.open;
+    });
+    blocks.push(block);
   }
-  return fieldset("Project media", el("p", { className: "hint", text: "Imported images are resized and saved as WebP. Add meaningful alt text in both languages." }), ...blocks);
+  return el("div", { className: "panel editor" }, el("p", { className: "hint", text: "Imported images are resized and saved as WebP. Add meaningful alt text in both languages." }), ...blocks);
+}
+
+function recordMedia(record) {
+  function remove(key) {
+    delete record[key];
+    edited();
+    render();
+  }
+  const image = el("div", { className: "editor" }, uploadField(async files => {
+    const [[src, blob]] = await prepareUploads(files, current.section);
+    current.uploads.delete(record.image?.src);
+    current.uploads.set(src, blob);
+    update(record, "image", { src, alt: bilingual() });
+    render();
+  }, { multiple: false }));
+  if (record.image) image.append(assetCard(record.image.src, record.image, () => {
+    current.uploads.delete(record.image.src);
+    remove("image");
+  }));
+
+  const video = el("div", { className: "editor" }, uploadField(async ([file]) => {
+    const path = await prepareVideo(file);
+    current.uploads.delete(record.videoSrc);
+    current.uploads.set(path, file);
+    update(record, "videoSrc", path);
+    render();
+  }, { multiple: false, video: true }));
+  if (record.videoSrc) video.append(el("div", { className: "image-card" },
+    el("code", { text: current.uploads.get(record.videoSrc)?.name ?? record.videoSrc }),
+    button("Remove video", () => {
+      current.uploads.delete(record.videoSrc);
+      remove("videoSrc");
+    })
+  ));
+
+  return fieldset("Media",
+    el("p", { className: "hint", text: "Add a publication-approved image or MP4/WebM video up to 20 MB. Use a video with captions when it contains speech." }),
+    el("div", { className: "grid" }, image, video)
+  );
 }
 
 function markdownFields() {
@@ -352,92 +456,136 @@ function markdownFields() {
       const { prefix, blocks } = markdownSections(body.value);
       order.replaceChildren();
       if (blocks.length < 2) return;
-      order.append(ordering(blocks, block => block.title, () => {
+      order.append(disclosure("Reorder headings", ordering(blocks, block => block.title, () => {
         body.value = prefix + blocks.map(block => block.text.trimEnd()).join("\n\n") + "\n";
         label.querySelector("textarea").value = body.value;
         edited();
-      }));
+      })));
     }
     showOrder();
-    return el("div", {}, label, order);
+    return el("div", { className: "editor" }, label, order);
   });
-  return fieldset("Page content", el("div", { className: "grid" }, ...fields));
+  return el("div", { className: "panel markdown-grid" }, ...fields);
 }
 
 function advanced(record) {
-  let raw = json(record);
-  const details = el("details", { className: "panel" }, el("summary", { text: "Advanced fields (JSON)" }),
-    el("p", { className: "details-note", text: "Use this for optional fields and exact values. Apply the JSON to the form before saving." }),
-    input("Record JSON", raw, value => { raw = value; }, { multiline: true, className: "json" }),
-    button("Apply JSON to form", () => {
+  const before = json(record);
+  const draft = current.jsonDraft ?? { before, value: before };
+  return el("div", { className: "panel editor" },
+    el("p", { className: "hint", text: "Edit optional fields or exact values. Apply the JSON to the form before saving." }),
+    input("Record JSON", draft.value, value => {
+      draft.value = value;
+      current.jsonDraft = value === draft.before ? undefined : draft;
+      sync();
+    }, { multiline: true, className: "json" }),
+    el("div", { className: "actions" }, button("Apply JSON to form", () => {
       try {
-        const parsed = JSON.parse(raw);
+        if (before !== draft.before) throw new Error("The form changed after you started editing JSON. Copy your draft, then reload JSON from the form before applying it.");
+        const parsed = JSON.parse(draft.value);
         if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error("Enter a JSON object.");
         if (special() && parsed.slug !== record.slug) throw new Error("Use the slug field to set a new record's slug.");
         if (!current.isNew && record.id && parsed.id !== record.id) throw new Error("Keep the existing record ID.");
         if (current.index < 0) current.data = parsed;
         else current.data[current.index] = parsed;
+        current.jsonDraft = undefined;
         edited();
         render();
+        status("JSON applied. Save changes to write it to the checkout.");
       } catch (error) { status(error.message, true); }
-    }));
-  return details;
+    }), button("Reload JSON from form", () => {
+      if (current.jsonDraft && !window.confirm("Discard changes to the JSON draft?")) return;
+      current.jsonDraft = undefined;
+      render();
+      status(dirty ? "Unsaved changes" : "");
+    }))
+  );
 }
 
 function specialForm(record) {
   const project = current.section === "projects";
-  const parts = [
-    input("Slug", record.slug, value => update(record, "slug", value.trim()), { disabled: !current.isNew }),
-    pairField("Title", record, "title"),
-    pairField("Summary", record, "summary", true)
-  ];
-  const list = key => input(fieldName(key), (record[key] ?? []).join(", "), value => update(record, key, value.split(",").map(part => part.trim()).filter(Boolean)));
-  if (project) {
-    parts.push(
-      fieldset("Project details", el("div", { className: "grid" },
+  const list = (key, label = fieldName(key)) => input(label, (record[key] ?? []).join(", "), value => update(record, key, value.split(",").map(part => part.trim()).filter(Boolean)));
+  return {
+    Overview: () => el("div", { className: "panel editor" },
+      pairField("Title", record, "title"),
+      pairField("Summary", record, "summary", true),
+      input("URL slug", record.slug, value => update(record, "slug", value.trim()), { disabled: !current.isNew }),
+      ...(project ? [fieldset("Visibility", el("div", { className: "actions" }, ...["draft", "featured", "archive"].map(key =>
+        input(fieldName(key), record[key], value => update(record, key, value), { type: "checkbox" })
+      )))] : [el("div", { className: "grid" }, list("tags", "Tags (comma-separated)"),
+        input("Related project slug", record.project, value => update(record, "project", value.trim())))])),
+    ...(project ? {
+      "Project details": () => el("div", { className: "panel editor" }, el("div", { className: "grid" },
         select("Category", categories, record.category, value => update(record, "category", value)),
         select("Status", statuses, record.status ?? "", value => update(record, "status", value)),
         input("Start (YYYY or YYYY-MM)", record.startDate, value => update(record, "startDate", value)),
         input("End (YYYY or YYYY-MM)", record.endDate, value => update(record, "endDate", value)),
-        list("technologies"), list("relatedProjects")
-      ), el("div", { className: "actions" }, ...["draft", "featured", "archive"].map(key =>
-        input(fieldName(key), record[key], value => update(record, key, value), { type: "checkbox" })
-      ))),
-      pairField("Role (optional)", record, "role"), pairField("Organization (optional)", record, "organization"),
-      fieldset("Links", el("div", { className: "grid" }, ...["githubUrl", "demoUrl", "publicationUrl", "youtubeId"].map(key =>
-        input(fieldName(key), record[key], value => update(record, key, value.trim()))
-      ))),
-      images(record)
-    );
-  } else {
-    parts.push(fieldset("Article details", el("div", { className: "grid" }, list("tags"),
-      input("Related project slug", record.project, value => update(record, "project", value.trim()))
-    )));
-  }
-  parts.push(markdownFields(), advanced(record));
-  return parts;
+        list("technologies", "Technologies (comma-separated)"), list("relatedProjects", "Related project slugs (comma-separated)"),
+        list("hardware", "Hardware (comma-separated)"), list("software", "Software (comma-separated)")
+      ), disclosure("Additional categories", el("div", { className: "grid" }, ...Object.entries(categories).map(([key, name]) =>
+        input(name, record.categories?.includes(key), checked => {
+          const selected = new Set(record.categories ?? []);
+          if (checked) selected.add(key);
+          else selected.delete(key);
+          update(record, "categories", [...selected]);
+        }, { type: "checkbox" })
+      ))), pairField("Role (optional)", record, "role"), pairField("Organization (optional)", record, "organization"),
+      genericField("Evaluation metrics", record.metrics ?? [], value => update(record, "metrics", value), { label: bilingual(), value: "", conditions: bilingual() })),
+      Links: () => el("div", { className: "panel grid" }, ...Object.entries({ githubUrl: "GitHub URL", demoUrl: "Demonstration URL", publicationUrl: "Publication URL", youtubeId: "YouTube video ID" }).map(([key, label]) =>
+        input(label, record[key], value => update(record, key, value.trim()))
+      ))
+    } : {}),
+    Media: () => project ? images(record) : recordMedia(record),
+    "Page content": markdownFields,
+    Advanced: () => advanced(record)
+  };
 }
 
-function genericField(name, value, change) {
+function disclosure(label, ...children) {
+  return el("details", { className: "disclosure" }, el("summary", { text: label }), el("div", { className: "editor" }, ...children));
+}
+
+function genericField(name, value, change, template) {
   if (Array.isArray(value)) {
+    function rebuild(adding = false) {
+      const next = genericField(name, value, change, template);
+      group.replaceWith(next);
+      next.open = true;
+      const entry = adding ? next.querySelector(".array-items").lastElementChild : null;
+      if (entry?.tagName === "DETAILS") entry.open = true;
+      (entry?.querySelector("input, textarea, select") || next.querySelector(".add-item")).focus();
+    }
     const entries = value.map((item, index) => ({ item, index }));
-    const items = el("div", { className: "editor" }, ...entries.map(entry => {
-      const card = fieldset(`${display(entry.item) || name} ${entry.index + 1}`,
-        genericField(typeof entry.item === "object" ? "Details" : "Value", entry.item, next => {
-          entry.item = next;
-          value[entries.indexOf(entry)] = next;
-          edited();
-        }),
-        button("Remove item", () => { value.splice(entries.indexOf(entry), 1); edited(); render(); }));
+    const items = el("div", { className: "editor array-items" }, ...entries.map(entry => {
+      const label = display(entry.item) || `Item ${entry.index + 1}`;
+      const save = next => {
+        entry.item = next;
+        value[entries.indexOf(entry)] = next;
+        change(value);
+      };
+      const remove = button("Remove", () => { value.splice(entries.indexOf(entry), 1); change(value); rebuild(); });
+      remove.setAttribute("aria-label", `Remove ${label}`);
+      const card = entry.item && typeof entry.item === "object"
+        ? disclosure(label, ...Object.entries(entry.item).map(([key, part]) => genericField(fieldName(key), part, next => {
+          entry.item[key] = next;
+          change(value);
+        })), remove)
+        : el("div", { className: "array-row" }, genericField(label, entry.item, save), remove);
       entry.card = card;
       return card;
     }));
-    const order = entries.length > 1 ? [ordering(entries, entry => display(entry.item) || String(entry.item) || name, () => {
+    const order = entries.length > 1 ? [disclosure("Reorder items", ordering(entries, entry => display(entry.item) || String(entry.item) || `Item ${entry.index + 1}`, () => {
       value.splice(0, value.length, ...entries.map(entry => entry.item));
       for (const entry of entries) items.append(entry.card);
-      edited();
-    })] : [];
-    return fieldset(name, ...order, items, button("Add item", () => { value.push(reset(value[0])); edited(); render(); }));
+      change(value);
+    }))] : [];
+    const add = button("Add item", () => {
+      value.push(reset(value[0] ?? template));
+      change(value);
+      rebuild(true);
+    });
+    add.className = "add-item";
+    const group = disclosure(`${name} (${entries.length})`, ...order, items, add);
+    return group;
   }
   if (value && typeof value === "object") {
     if (Object.keys(value).sort().join(",") === "en,ja") return translated(name, value, (locale, text) => update(value, locale, text));
@@ -448,22 +596,25 @@ function genericField(name, value, change) {
   return input(name, value, change, { type: typeof value === "boolean" ? "checkbox" : typeof value === "number" ? "number" : "text", multiline: textValue(value).length > 85 });
 }
 
-function newRecord() {
+async function newRecord() {
   if (!canLeave()) return;
-  run(async () => {
+  await run(async () => {
     const { section } = current;
     await loadSection(section);
     const record = special() ? {
       slug: "", title: bilingual(), summary: bilingual(),
       ...(section === "projects" ? { category: "research", technologies: [], draft: true } : { tags: [] })
     } : reset(current.data[0] ?? (await api("record-template", { section })).sample);
+    if (hasRecordMedia(section)) for (const key of mediaKeys) delete record[key];
     current.data.push(record);
     current.index = current.data.length - 1;
     current.isNew = true;
+    current.panel = undefined;
     current.bodies = emptyBodies();
     edited();
     render();
   });
+  if (current.isNew) workspace.querySelector('[aria-pressed="true"]')?.focus();
 }
 
 async function fingerprint(value) {
@@ -474,7 +625,7 @@ async function fingerprint(value) {
 }
 
 function confirmDelete(label) {
-  if (dirty || pendingVersions.size) {
+  if (dirty || pendingVersions.size || current.jsonDraft) {
     status("Save your pending changes before deleting a record.", true);
     return;
   }
@@ -490,47 +641,109 @@ function confirmDelete(label) {
       ));
       const result = await api("delete-record", { section, index, revision: await fingerprint(before), bodies: revisions });
       await loadSection(section, result.index);
-      status("Record deleted locally. You can undo it in Versions.");
+      status("Record deleted locally. You can undo it in Version history.");
     });
   });
   remove.classList.add("danger");
-  showReview("Delete record", el("p", { text: `Delete “${label}” from ${sections.get(section)}?` }),
+  showReview("Delete record", el("p", { text: `Delete “${label}” from ${sections.get(section).title}?` }),
     ...(details ? [el("p", { text: details })] : []),
-    el("p", { text: "The deletion is saved as a local Git version and can be undone in Versions." }), remove);
+    el("p", { text: "The deletion is saved as a local Git version and can be undone in Version history." }), remove);
+}
+
+function releaseImages() {
+  for (const url of objectUrls) URL.revokeObjectURL(url);
+  objectUrls = [];
+}
+
+function editorPanels(panels) {
+  const names = Object.keys(panels);
+  const controls = el("div", { className: "editor-tabs" });
+  controls.setAttribute("role", "group");
+  controls.setAttribute("aria-label", "Editing panels");
+  const panel = el("div", { className: "editor-content" });
+  panel.id = "editor-content";
+  const buttons = names.map(name => {
+    const tab = button(name, () => {
+      if (current.panel !== name) show(name);
+    });
+    tab.setAttribute("aria-controls", panel.id);
+    controls.append(tab);
+    return tab;
+  });
+  function show(name) {
+    releaseImages();
+    current.panel = name;
+    for (const tab of buttons) tab.setAttribute("aria-pressed", String(tab.textContent === name));
+    panel.replaceChildren(panels[name]());
+  }
+  show(Object.hasOwn(panels, current.panel) ? current.panel : names[0]);
+  return el("div", { className: "editor-shell" }, controls, panel);
+}
+
+function recordFields(record, section) {
+  const fields = Object.entries(record).filter(([key]) => !hasRecordMedia(section) || !mediaKeys.includes(key));
+  const form = el("div", { className: "grid record-fields" }, ...fields.map(([key, value]) => genericField(fieldName(key), value, next => update(record, key, next))));
+  if (!section.startsWith("interface-")) return el("div", { className: "panel editor" }, form);
+
+  const statusLine = el("p", { className: "hint", text: "No matching labels or text." });
+  statusLine.setAttribute("role", "status");
+  statusLine.hidden = true;
+  const search = input("Find interface text", "", value => {
+    const query = value.trim().toLocaleLowerCase();
+    for (const [index, [key]] of fields.entries()) {
+      const text = `${form.children[index].textContent} ${JSON.stringify(record[key])}`;
+      form.children[index].hidden = !text.toLocaleLowerCase().includes(query);
+    }
+    statusLine.hidden = Array.from(form.children).some(field => !field.hidden);
+  }, { type: "search" });
+  search.querySelector("input").placeholder = "Search labels or current text";
+  return el("div", { className: "panel editor" }, search, statusLine, form);
 }
 
 function render() {
-  for (const url of objectUrls) URL.revokeObjectURL(url);
-  objectUrls = [];
+  releaseImages();
   sectionNavigation();
   document.querySelector("#sidebar").hidden = false;
   const { section, data, index } = current;
-  workspace.replaceChildren(el("div", { className: "section-header" }, el("h1", { text: sections.get(section) })));
+  const { title, description } = sections.get(section);
+  const heading = el("h1", { text: title });
+  heading.tabIndex = -1;
+  workspace.replaceChildren(el("div", { className: "section-header" }, heading, el("p", { className: "hint", text: description })));
   if (section === "layout") {
     const { sections: labels } = layoutDefaults[layoutGroup];
     const ids = [...new Set([...(data[layoutGroup] ?? []), ...Object.keys(labels)])].filter(id => Object.hasOwn(labels, id));
-    workspace.append(
-      el("p", { className: "hint", text: "Drag a section or use Up and Down. The order applies to English and Japanese pages." }),
+    workspace.append(el("div", { className: "panel editor" },
       select("Page or section group", Object.fromEntries(Object.entries(layoutDefaults).map(([id, group]) => [id, group.label])), layoutGroup, id => {
         layoutGroup = id;
         render();
+        workspace.querySelector("select").focus();
       }),
+      el("p", { className: "hint", text: "Drag each section or use Up and Down." }),
       ordering(ids, id => labels[id], () => {
         data[layoutGroup] = ids;
         edited();
       })
-    );
+    ));
     return;
   }
   if (section === "media") {
-    workspace.append(el("p", { className: "hint", text: "Copy a local path for use in a profile field or Markdown image. Save uploads before using the paths." }),
-      uploadField(async files => {
+    const images = el("div", { className: "images" }, ...[...current.uploads.keys(), ...current.library].map(path => assetCard(path)));
+    const noImages = el("p", { className: "hint", text: "No matching images." });
+    noImages.setAttribute("role", "status");
+    noImages.hidden = images.children.length > 0;
+    const filter = input("Find an image", "", value => {
+      const query = value.trim().toLocaleLowerCase();
+      for (const card of images.children) card.hidden = !card.querySelector("code").textContent.toLocaleLowerCase().includes(query);
+      noImages.hidden = Array.from(images.children).some(card => !card.hidden);
+    }, { type: "search" });
+    filter.querySelector("input").placeholder = "Search filenames or paths";
+    workspace.append(el("div", { className: "panel editor" }, el("p", { className: "hint", text: "Save uploads before using their paths in a profile field or Markdown image." }),
+      el("div", { className: "grid" }, filter, uploadField(async files => {
         for (const [path, blob] of await prepareUploads(files, "media")) current.uploads.set(path, blob);
         edited();
         render();
-      }),
-      el("div", { className: "images" }, ...[...current.uploads.keys(), ...current.library].map(path => assetCard(path)))
-    );
+      })), noImages, images
+    ));
     return;
   }
 
@@ -538,24 +751,29 @@ function render() {
   const entry = array ? data[index] : data;
   if (array) {
     const name = (record, position) => display(record) || (record === entry && current.isNew ? "New record" : `Record ${position + 1}`);
-    const recordSelect = select("Choose record", Object.fromEntries(data.map((record, position) => [position, name(record, position)])), String(index), value => {
-        const { section, index } = current;
-        if (canLeave()) run(async () => {
-          await loadSection(section, Number(value));
-          status();
-        });
-        else workspace.querySelector("select").value = String(index);
+    const recordSelect = select("Choose record", Object.fromEntries(data.map((record, position) => [position, name(record, position)])), String(index), async value => {
+      const { section, index } = current;
+      if (!canLeave()) {
+        recordSelect.querySelector("select").value = String(index);
+        return;
+      }
+      await run(async () => {
+        await loadSection(section, Number(value));
+        status();
       });
+      workspace.querySelector(".record-tools select")?.focus();
+    });
     const toolbar = el("div", { className: "toolbar" }, recordSelect,
       button(section === "projects" ? "Add project" : section === "articles" ? "Add article" : "Add record", newRecord));
+    const recordTools = el("div", { className: "record-tools" }, toolbar);
     if (entry && !current.isNew) {
       const remove = button("Delete record…", () => confirmDelete(name(entry, current.index)));
       remove.classList.add("danger");
-      toolbar.append(remove);
+      toolbar.append(disclosure("Record actions", remove));
     }
-    workspace.append(toolbar);
+    workspace.append(recordTools);
     if (data.length > 1) {
-      workspace.append(el("details", { className: "panel" }, el("summary", { text: "Reorder records" }), ordering(data, name, () => {
+      recordTools.append(disclosure("Reorder records", ordering(data, name, () => {
         current.index = data.indexOf(entry);
         const field = recordSelect.querySelector("select");
         for (const [position, option] of Array.from(field.options).entries()) option.textContent = name(data[position], position);
@@ -564,12 +782,16 @@ function render() {
       })));
     }
   }
-  if (!entry) return;
-  const form = special() ? specialForm(entry) : [
-    el("div", { className: "editor" }, ...Object.entries(entry).map(([key, value]) => genericField(fieldName(key), value, next => update(entry, key, next)))),
-    advanced(entry)
-  ];
-  workspace.append(el("div", { className: "editor" }, ...form));
+  if (!entry) {
+    workspace.append(el("p", { className: "hint empty-state", text: "There are no records in this section. Add a record to get started." }));
+    return;
+  }
+  const panels = special() ? specialForm(entry) : {
+    [section.startsWith("interface-") ? "Labels and text" : "Details"]: () => recordFields(entry, section),
+    ...(hasRecordMedia(section) ? { Media: () => recordMedia(entry) } : {}),
+    Advanced: () => advanced(entry)
+  };
+  workspace.append(editorPanels(panels));
 }
 
 function requiredTranslations(value, field) {
@@ -582,6 +804,23 @@ async function saveRecord() {
   const { section, data, index, path, before, uploads, bodies } = current;
   const changes = [];
   const record = index < 0 ? data : data[index];
+  if (hasRecordMedia(section) && record) {
+    const { image, videoSrc } = record;
+    if (image !== undefined) {
+      if (typeof image?.src !== "string" || !imagePath.test(image.src)) throw new Error("Choose a local image file.");
+      requiredTranslations(image.alt, "Image alt text");
+      if (image.caption && Object.values(image.caption).every(value => !textValue(value).trim())) delete image.caption;
+      if (image.caption) requiredTranslations(image.caption, "Image caption");
+      if (!uploads.has(image.src) && !await localImage(root, image.src)) throw new Error(`Image file is missing: ${image.src}`);
+    }
+    if (videoSrc !== undefined && (typeof videoSrc !== "string" || !videoPath.test(videoSrc) ||
+        (!uploads.has(videoSrc) && !await getFile(root, "public" + videoSrc)))) {
+      throw new Error("Choose a local MP4 or WebM video file.");
+    }
+    for (const asset of [image?.src, videoSrc]) {
+      if (uploads.has(asset)) changes.push({ path: "public" + asset, before: null, value: uploads.get(asset) });
+    }
+  }
   if (special()) {
     if (!slugPattern.test(record.slug)) throw new Error("Use a slug with lowercase words separated by hyphens.");
     if (data.some((item, position) => position !== index && item.slug === record.slug)) throw new Error("This slug is already in use.");
@@ -608,6 +847,11 @@ async function saveRecord() {
       for (const field of ["role", "organization"]) {
         if (record[field] && Object.values(record[field]).every(value => !textValue(value).trim())) delete record[field];
         if (published && record[field]) requiredTranslations(record[field], fieldName(field));
+      }
+      if (published) for (const metric of record.metrics ?? []) {
+        requiredTranslations(metric.label, "Metric label");
+        requiredTranslations(metric.conditions, "Metric conditions");
+        if (!textValue(metric.value).trim()) throw new Error("Enter a value for every evaluation metric.");
       }
       const media = [record.thumbnail, ...(record.gallery ?? []), ...(record.architecture ?? [])].filter(Boolean);
       for (const asset of media) {
@@ -665,6 +909,8 @@ connect.addEventListener("click", () => {
     await loadSection("projects");
     document.querySelector("#folder-status").textContent = root.name;
     connect.textContent = "Change folder";
+    connect.classList.remove("primary");
+    document.querySelector("#folder-action").append(connect);
     status();
   });
 });
@@ -690,6 +936,7 @@ async function saveVersion() {
 }
 
 async function savePending() {
+  if (current?.jsonDraft) throw new Error("Apply or reload your draft in Advanced before saving.");
   if (dirty) await saveRecord();
   else if (pendingVersions.size) await saveVersion();
 }
@@ -710,6 +957,9 @@ function link(text, href) {
 }
 
 saveButton.addEventListener("click", () => run(savePending));
+workspaceActions.addEventListener("click", event => {
+  if (event.target.closest("button")) workspaceActions.open = false;
+});
 
 previewButton.addEventListener("click", () => {
   const tab = window.open("about:blank", "_blank");
@@ -754,16 +1004,20 @@ versionsButton.addEventListener("click", () => run(async () => {
 
 pushButton.addEventListener("click", () => run(async () => {
   await savePending();
-  const data = await api("state");
-  const label = el("p", { text: "Review the local versions and saved files below. Confirm to push main to ishafayetul/ishafayetul.github.io and start GitHub Pages." });
-  const list = el("ul", {}, ...[...data.ahead, ...data.paths].map(value => el("li", { text: value })));
-  const files = el("details", {}, el("summary", { text: "Files in this push" }),
+  const data = await api("deploy-review");
+  const label = el("p", { text: "Review the changes for ishafayetul/ishafayetul.github.io on main. Confirmation runs the deploy checks and starts GitHub Pages." });
+  const pending = data.paths.length ? [el("h3", { text: "Files to commit" }),
+    el("ul", {}, ...data.paths.map(path => el("li", { text: path })))] : [];
+  const commits = data.ahead.length ? [disclosure(`Local commits to push (${data.ahead.length})`,
+    el("ul", {}, ...data.ahead.map(value => el("li", { text: value }))))] : [];
+  const files = disclosure("All files in this push",
     el("ul", {}, ...[...new Set([...data.outgoing, ...data.paths])].map(path => el("li", { text: path }))));
   const visibility = el("p", { className: "muted", text: "Files pushed to this public repository are visible on GitHub, including draft content." });
-  showReview("Push & deploy", label, list, files, visibility, button("Confirm push & deploy", () => {
+  const confirm = data.paths.length ? "Confirm commit, push & deploy" : "Confirm push & deploy";
+  showReview("Push & deploy", label, ...pending, ...commits, files, visibility, button(confirm, () => {
     dialog.close();
     run(async () => {
-      status("Checking the portfolio before pushing…");
+      status(data.paths.length ? "Committing reviewed files and checking the portfolio…" : "Checking the portfolio before pushing…");
       const result = await api("push", { proof: data.proof });
       status(result.message);
       if (result.url) notice.append(" ", link("Track deployment", result.url));
@@ -771,5 +1025,5 @@ pushButton.addEventListener("click", () => run(async () => {
   }));
 }));
 window.addEventListener("beforeunload", event => {
-  if (dirty) event.preventDefault();
+  if (dirty || current?.jsonDraft) event.preventDefault();
 });

@@ -3,6 +3,8 @@ import en from "../../messages/en.json";
 import ja from "../../messages/ja.json";
 import projectData from "../../content/data/projects.json";
 import articleData from "../../content/data/articles.json";
+import achievementData from "../../content/data/achievements.json";
+import outreachData from "../../content/data/outreach.json";
 import publicationData from "../../content/data/publications.json";
 
 export { default as profile } from "../../content/data/profile.json";
@@ -10,8 +12,6 @@ export { default as experience } from "../../content/data/experience.json";
 export { default as education } from "../../content/data/education.json";
 export { default as certifications } from "../../content/data/certifications.json";
 export { default as skills } from "../../content/data/skills.json";
-export { default as achievements } from "../../content/data/achievements.json";
-export { default as outreach } from "../../content/data/outreach.json";
 export { default as teaching } from "../../content/data/teaching.json";
 export { default as activities } from "../../content/data/activities.json";
 
@@ -21,6 +21,7 @@ export type Messages = typeof en;
 export const messages: Record<Locale, Messages> = { en, ja };
 
 export type ImageAsset = { src: string; alt: Localized; caption?: Localized; position?: string; preview?: string };
+export type RecordMedia = { image?: ImageAsset; videoSrc?: string };
 export type Project = {
   id: string;
   slug: string;
@@ -50,7 +51,7 @@ export type Project = {
   metrics?: { label: Localized; value: string; conditions: Localized }[];
   relatedProjects?: string[];
 };
-export type Article = { slug: string; title: Localized; summary: Localized; tags: string[]; project?: string };
+export type Article = RecordMedia & { slug: string; title: Localized; summary: Localized; tags: string[]; project?: string };
 export type Publication = {
   id: string;
   type: "journal" | "conference";
@@ -66,6 +67,8 @@ export type Publication = {
 
 export const projects = (projectData as Project[]).filter(project => !project.draft);
 export const articles: Article[] = articleData;
+export const achievements: (typeof achievementData[number] & RecordMedia)[] = achievementData;
+export const outreach: (typeof outreachData[number] & RecordMedia)[] = outreachData;
 export const publications = publicationData as Publication[];
 export const primaryNav = ["home", "projects", "experience", "research", "teaching", "achievements", "blog", "about", "contact"] as const;
 export const secondaryNav = ["resume"] as const;

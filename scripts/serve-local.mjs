@@ -42,7 +42,23 @@ async function serve(request, response, path, directory, prefix = "", only) {
   if (!file.startsWith(directory + sep)) return response.writeHead(404).end();
   const info = await stat(file);
   if (!info.isFile()) return response.writeHead(404).end();
-  response.writeHead(200, { "Content-Type": mime[extname(file)] ?? "application/octet-stream", "Content-Length": info.size });
+  const type = mime[extname(file)] ?? "application/octet-stream";
+  const headers = { "Content-Type": type, "Content-Length": info.size };
+  if (type.startsWith("video/")) {
+    headers["Accept-Ranges"] = "bytes";
+    const range = request.method === "GET" && /^bytes=(\d*)-(\d*)$/.exec(request.headers.range ?? "");
+    if (range && (range[1] || range[2])) {
+      const [, first, last] = range;
+      const start = first ? Number(first) : Math.max(0, info.size - Number(last));
+      const end = first && last ? Math.min(info.size - 1, Number(last)) : info.size - 1;
+      if (start > end) return response.writeHead(416, { "Content-Range": `bytes */${info.size}` }).end();
+      headers["Content-Range"] = `bytes ${start}-${end}/${info.size}`;
+      headers["Content-Length"] = end - start + 1;
+      response.writeHead(206, headers);
+      return createReadStream(file, { start, end }).on("error", () => response.destroy()).pipe(response);
+    }
+  }
+  response.writeHead(200, headers);
   if (request.method === "HEAD") return response.end();
   createReadStream(file).on("error", () => response.destroy()).pipe(response);
 }
@@ -91,6 +107,7 @@ async function action(request, response, path) {
     let data;
     switch (path) {
       case "/api/state": data = await git.state(); break;
+      case "/api/deploy-review": data = await git.deploymentReview(); break;
       case "/api/save": data = { version: await git.checkpoint(input.paths) }; break;
       case "/api/delete-record": data = await git.deleteRecord(input); break;
       case "/api/record-template": data = await git.recordTemplate(input.section); break;

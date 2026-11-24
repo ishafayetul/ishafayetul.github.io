@@ -6,7 +6,7 @@ import Markdown, { defaultUrlTransform } from "react-markdown";
 import {
   achievements, activities, articles, authorNames, certifications, citations, education, experience, messages,
   outreach, period, profile, projectPeriod, projects, publications, route, skills, teaching,
-  type Article, type Locale, type Project, type Publication
+  type Article, type Locale, type Localized, type Project, type Publication, type RecordMedia
 } from "@/lib/content";
 import { orderedSections, sectionOrder } from "@/lib/section-order";
 import { getMarkdown } from "@/lib/markdown";
@@ -19,6 +19,16 @@ const skillIcons = { robotics: Compass, uav: Plane, perception: ScanLine, simula
 function markdownUrl(url: string) {
   const safe = defaultUrlTransform(url);
   return safe.startsWith("/") && !safe.startsWith("//") ? sitePath(safe) : safe;
+}
+
+function EntryMedia({ entry, locale }: { entry: RecordMedia & { title: Localized }; locale: Locale }) {
+  if (!entry.image && !entry.videoSrc) return null;
+  return <>
+    {entry.image && <div className="gallery"><MediaImage image={entry.image} locale={locale} /></div>}
+    {entry.videoSrc && <div className="video-panel">
+      <video className="local-video" src={sitePath(entry.videoSrc)} preload="none" controls aria-label={entry.title[locale]} />
+    </div>}
+  </>;
 }
 
 const featured = projects.filter(project => project.featured);
@@ -271,6 +281,7 @@ export function Achievements({ locale }: { locale: Locale }) {
         <div className="info-grid">{achievements.filter(item => item.kind === kind).map(item => <article className="info-card achievement-card" key={item.id}>
           <p className="eyebrow">{item.year}</p><h3>{item.title[locale]}</h3><p className="timeline-org">{item.result[locale]}</p>
           {item.organization && <p>{item.organization[locale]}</p>}<p>{t.role} · {item.role[locale]}</p>
+          <EntryMedia entry={item} locale={locale} />
           <div className="action-row">{item.project && <a href={route(locale, "projects", item.project)} className="text-link">{t.viewCase}</a>}
           {item.url && <a href={item.url} className="text-link">{t.viewSource}</a>}</div>
         </article>)}</div>
@@ -294,6 +305,7 @@ export function Teaching({ locale }: { locale: Locale }) {
       <SectionHeading title={t.workshops} />
       <div className="info-grid">{outreach.map(item => <article className="info-card" key={item.title.en}>
         <h3>{item.title[locale]}</h3><p>{item.organization[locale]}{item.year && ` · ${item.year}`}</p>
+        <EntryMedia entry={item} locale={locale} />
         {item.url && <a className="text-link" href={item.url}>{t.viewSource}</a>}
       </article>)}</div>
     </section>,
@@ -314,6 +326,7 @@ export function Blog({ locale }: { locale: Locale }) {
       {articles.map(article => <article className="info-card" key={article.slug}>
         <BookOpen className="content-icon" aria-hidden="true" /><h2><a href={route(locale, "blog", article.slug)}>{article.title[locale]}</a></h2>
         <p>{article.summary[locale]}</p><Tags items={article.tags} />
+        <EntryMedia entry={article} locale={locale} />
       </article>)}
     </section>
   });
@@ -325,6 +338,7 @@ export function ArticleDetail({ locale, article }: { locale: Locale; article: Ar
   return orderedSections("articleDetail", {
     intro: <PageIntro title={article.title[locale]} description={article.summary[locale]} label={t.nav.blog}><Tags items={article.tags} /></PageIntro>,
     details: <div className="container content-section">
+      {(article.image || article.videoSrc) && <section className="article-media" aria-label={t.media}><EntryMedia entry={article} locale={locale} /></section>}
       {orderedSections("articleBody", {
         markdown: <article className="markdown"><Markdown urlTransform={markdownUrl}>{getMarkdown(locale, "blog", article.slug)}</Markdown></article>,
         related: project && <div className="article-related"><h2>{t.related}</h2><a className="text-link" href={route(locale, "projects", project.slug)}>{project.title[locale]}</a></div>
