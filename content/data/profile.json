@@ -26,20 +26,6 @@
       }
     },
     {
-      "value": "3",
-      "label": {
-        "en": "IEEE publications",
-        "ja": "IEEE掲載論文"
-      }
-    },
-    {
-      "value": "ICT",
-      "label": {
-        "en": "Government-funded research",
-        "ja": "政府助成の研究開発"
-      }
-    },
-    {
       "value": "M.Sc.",
       "label": {
         "en": "Computer science · AI, in progress",
@@ -47,10 +33,24 @@
       }
     },
     {
+      "value": "3Q",
+      "label": {
+        "en": "Japanese · NAT Test Passed",
+        "ja": "日本語なっとてすと３Q合格"
+      }
+    },
+    {
       "value": "N4",
       "label": {
         "en": "Japanese · JLPT passed",
         "ja": "日本語能力試験N4合格"
+      }
+    },
+    {
+      "value": "3",
+      "label": {
+        "en": "IEEE publications",
+        "ja": "IEEE掲載論文"
       }
     }
   ]
