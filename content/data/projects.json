@@ -671,34 +671,5 @@
         "ja": "キーパッドと表示器を備えたデジタルドアロックの試作機"
       }
     }
-  },
-  {
-    "id": "ros2-manipulator",
-    "slug": "ros2-manipulator",
-    "title": {
-      "en": "ROS 2 Manipulator Integration",
-      "ja": "ROS 2 マニピュレーター統合"
-    },
-    "summary": {
-      "en": "A ROS 2 Humble arm workspace with simulated joint control, MoveIt configuration and a C++ planning interface.",
-      "ja": "シミュレーション上の関節制御、MoveIt設定、C++の動作計画インターフェースを備えたROS 2 Humbleのアーム開発環境。"
-    },
-    "category": "manipulation",
-    "categories": [
-      "simulation"
-    ],
-    "technologies": [
-      "ROS 2",
-      "MoveIt",
-      "ros2_control",
-      "Gazebo",
-      "C++"
-    ],
-    "status": "simulation",
-    "startDate": "2024",
-    "githubUrl": "https://github.com/ishafayetul/manipulator01-ros-humble",
-    "relatedProjects": [
-      "robotic-arm-simulation"
-    ]
   }
 ]
